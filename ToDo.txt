@@ -1,0 +1,29 @@
+TODO:
+- Select slots and place chesspieces (done)
+- Switch betwwen 2 players (done)
+- Moving chesspiece (done)
+- Check for 3 in a rows and removing 
+chesspiece
+
+RULES:
+- Starting:
++ White go first, then black
++ Place on any empty slots, for making 3
+in a rows, or blocking enemy.
+
+- Middle:
++ Player can move 1 chesspiece to any 
+adjacent slots
++ If player got 3 in a rows, select 1 chesspiece
+of enemy to remove it (but not the one
+getting 3 in a rows)
+
+- End:
++ If player have only 3 chesspiece left, 
+that player can make a jump move
+(Meaning that player can move a chesspiece 
+to any empty slots)
++ If player down to 2 chesspiece, the 
+opposite player win
+
+
