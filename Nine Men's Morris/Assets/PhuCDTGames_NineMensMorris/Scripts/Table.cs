@@ -57,18 +57,6 @@ public class Table : MonoBehaviour
                 //Neu slot do khong trong, xem player no an dung vao chesspiece cua minh hay khong, neu an dung thi hien ra nhung nuoc di co the di cua chesspiece do
                 CheckChesspieceAndShowAdjacent(slotValue);
             }
-
-            //Check xem co 3 in a row nao hay khong
-            if (Check3InARow(currentPlayer)) //Neu co va la cua currentPlayer
-            {
-                //MoveAPieceOfOpponent();
-            }
-            else //Neu khong co gi, doi luot choi
-            {
-                SwitchPlayer();
-            }
-
-
         }
 
     }
@@ -85,7 +73,7 @@ public class Table : MonoBehaviour
             return false;
         }
 
-    }
+    } //Tra lai true neu slot trong, nguoc lai tra ve false
 
     private void PlaceChesspiece(int slotValue)
     {
@@ -94,6 +82,7 @@ public class Table : MonoBehaviour
             slots[slotValue].setPiece("White");
             whitePlayer.pieceSleep--;
             whitePlayer.pieceLive++;
+            CheckMill(slotValue, true);
             SwitchPlayer(); //Dat chesspiece xong thi doi luot choi
         }
         else if (currentPlayer == CurrentPlayer.Black) //Neu nhu nguoi choi hien tai la den thi dat chesspiece den vao slot do
@@ -101,12 +90,13 @@ public class Table : MonoBehaviour
             slots[slotValue].setPiece("Black");
             blackPlayer.pieceSleep--;
             blackPlayer.pieceLive++;
+            CheckMill(slotValue, false);
             SwitchPlayer(); //Dat chesspiece xong thi doi luot choi
         }
-    }
+    } //Dat chesspiece len ban`
 
 
-    private void CheckChesspieceAndShowAdjacent(int slotValue)
+    private void CheckChesspieceAndShowAdjacent(int slotValue) //Hien len cac o ben canh chesspiece cua nguoi choi de di chuyen
     {
         if (currentPlayer == CurrentPlayer.White) 
         {
@@ -151,6 +141,56 @@ public class Table : MonoBehaviour
         }
     }
 
+    private void MoveChesspiece(int fromValue, int toValue, List<int> adjacentSlots)
+    {
+        foreach (int value in adjacentSlots)
+        {
+            slots[value].setPiece("Empty");
+            if (toValue == value)
+            {
+                if (currentPlayer == CurrentPlayer.White)
+                {
+                    slots[toValue].setPiece("White");
+                    slots[fromValue].setPiece("Empty");
+                    CheckMill(toValue, true);
+                    SwitchPlayer();
+                }
+                else if (currentPlayer == CurrentPlayer.Black)
+                {
+                    slots[toValue].setPiece("Black");
+                    slots[fromValue].setPiece("Empty");
+                    CheckMill(toValue, false);
+                    SwitchPlayer();
+                }
+            }
+        }
+    } //Di chuyen chesspiece den o trong ben canh
+
+    private void SwitchPlayer()
+    {
+        if (currentPlayer == CurrentPlayer.White)
+        {
+            currentPlayer = CurrentPlayer.Black;
+        }
+        else if (currentPlayer == CurrentPlayer.Black)
+        {
+            currentPlayer = CurrentPlayer.White;
+        }
+    }
+
+    private Player ReturnCurrentPlayer(CurrentPlayer currentPlayer)
+    {
+        if (currentPlayer == CurrentPlayer.White)
+        {
+            return whitePlayer;
+        }
+        else if (currentPlayer == CurrentPlayer.Black)
+        {
+            return blackPlayer;
+        }
+        else
+            return null;
+    }
     private int[] CheckAdjacent(int slotValue)
     {
         switch (slotValue)
@@ -206,60 +246,244 @@ public class Table : MonoBehaviour
             default:
                 return new int[] { 0 };
         }
-    }
+    } //Tra ve cac slot ben canh slotValue
 
-
-    private void MoveChesspiece(int fromValue, int toValue, List<int> adjacentSlots)
+    private void CheckMill(int slotValue, bool isWhite) //Tra ve cac slot tao thanh Mill, cho truoc slotValue
     {
-        foreach (int value in adjacentSlots)
+        void SettingMillWhite(int current, int prev, int next)
         {
-            slots[value].setPiece("Empty");
-            if (toValue == value)
+            if (slots[prev].isWhite && !slots[prev].isEmpty)
             {
-                if (currentPlayer == CurrentPlayer.White)
+                if (slots[next].isWhite && !slots[next].isEmpty)
                 {
-                    slots[toValue].setPiece("White");
-                    slots[fromValue].setPiece("Empty");
-                    SwitchPlayer();
-                }
-                else if (currentPlayer == CurrentPlayer.Black)
-                {
-                    slots[toValue].setPiece("Black");
-                    slots[fromValue].setPiece("Empty");
-                    SwitchPlayer();
+                    print("true, white");
+                    slots[current].setPiece("MillWhite");
+                    slots[prev].setPiece("MillWhite");
+                    slots[next].setPiece("MillWhite");
                 }
             }
         }
-    }
+        void SettingMillBlack(int current, int prev, int next)
+        {
+            if (!slots[prev].isWhite && !slots[prev].isEmpty)
+            {
+                if (!slots[next].isWhite && !slots[next].isEmpty)
+                {
+                    print("true, black");
+                    slots[current].setPiece("MillBlack");
+                    slots[prev].setPiece("MillBlack");
+                    slots[next].setPiece("MillBlack");
+                }
+            }
+        }
 
-    private bool Check3InARow(CurrentPlayer currentPlayer)
-    {
-        return true;
-    }
-
-    private void SwitchPlayer()
-    {
-        if (currentPlayer == CurrentPlayer.White)
+        if (isWhite) //Mau trang
         {
-            currentPlayer = CurrentPlayer.Black;
-        }
-        else if (currentPlayer == CurrentPlayer.Black)
-        {
-            currentPlayer = CurrentPlayer.White;
-        }
-    }
-
-    private Player ReturnCurrentPlayer(CurrentPlayer currentPlayer)
-    {
-        if (currentPlayer == CurrentPlayer.White)
-        {
-            return whitePlayer;
-        }
-        else if (currentPlayer == CurrentPlayer.Black)
-        {
-            return blackPlayer;
-        }
+            switch (slotValue)
+            {
+                case 0:
+                    SettingMillWhite(0, 1, 2); //Tai day se ta ve mot array neu no tao thanh mot Mill
+                    SettingMillWhite(0, 9, 21);
+                    break;
+                case 1:
+                    SettingMillWhite(1, 0, 2);
+                    SettingMillWhite(1, 4, 7);
+                    break;
+                case 2:
+                    SettingMillWhite(2, 0, 1);
+                    SettingMillWhite(2, 14, 23);
+                    break;
+                case 3:
+                    SettingMillWhite(3, 4, 5);
+                    SettingMillWhite(3, 10, 18);
+                    break;
+                case 4:
+                    SettingMillWhite(4, 3, 5);
+                    SettingMillWhite(4, 1, 7);
+                    break;
+                case 5:
+                    SettingMillWhite(5, 4, 3);
+                    SettingMillWhite(5, 13, 20);
+                    break;
+                case 6:
+                    SettingMillWhite(6, 7, 8);
+                    SettingMillWhite(6, 11, 15);
+                    break;
+                case 7:
+                    SettingMillWhite(7, 6, 8);
+                    SettingMillWhite(7, 4, 1);
+                    break;
+                case 8:
+                    SettingMillWhite(8, 7, 6);
+                    SettingMillWhite(8, 12, 17);
+                    break;
+                case 9:
+                    SettingMillWhite(9, 10, 11);
+                    SettingMillWhite(9, 0, 21);
+                    break;
+                case 10:
+                    SettingMillWhite(10, 9, 11);
+                    SettingMillWhite(10, 3, 18);
+                    break;
+                case 11:
+                    SettingMillWhite(11, 10, 9);
+                    SettingMillWhite(11, 6, 15);
+                    break;
+                case 12:
+                    SettingMillWhite(12, 13, 14);
+                    SettingMillWhite(12, 8, 17);
+                    break;
+                case 13:
+                    SettingMillWhite(13, 12, 14);
+                    SettingMillWhite(13, 5, 20);
+                    break;
+                case 14:
+                    SettingMillWhite(14, 13, 12);
+                    SettingMillWhite(14, 2, 23);
+                    break;
+                case 15:
+                    SettingMillWhite(15, 16, 17);
+                    SettingMillWhite(15, 11, 6);
+                    break;
+                case 16:
+                    SettingMillWhite(16, 15, 17);
+                    SettingMillWhite(16, 19, 22);
+                    break;
+                case 17:
+                    SettingMillWhite(17, 16, 15);
+                    SettingMillWhite(17, 12, 8);
+                    break;
+                case 18:
+                    SettingMillWhite(18, 19, 20);
+                    SettingMillWhite(18, 3, 10);
+                    break;
+                case 19:
+                    SettingMillWhite(19, 18, 20);
+                    SettingMillWhite(19, 16, 22);
+                    break;
+                case 20:
+                    SettingMillWhite(20, 19, 18);
+                    SettingMillWhite(20, 13, 5);
+                    break;
+                case 21:
+                    SettingMillWhite(21, 22, 23);
+                    SettingMillWhite(21, 9, 0);
+                    break;
+                case 22:
+                    SettingMillWhite(22, 21, 23);
+                    SettingMillWhite(22, 19, 16);
+                    break;
+                case 23:
+                    SettingMillWhite(23, 22, 21);
+                    SettingMillWhite(23, 14, 2);
+                    break;
+                default:
+                    break;
+            }
+        } //Neu chesspiece mau trang
         else
-            return null;
+        {
+            switch (slotValue)
+            {
+                case 0:
+                    SettingMillBlack(0, 1, 2); //Tai day se ta ve mot array neu no tao thanh mot Mill
+                    SettingMillBlack(0, 9, 21);
+                    break;
+                case 1:
+                    SettingMillBlack(1, 0, 2);
+                    SettingMillBlack(1, 4, 7);
+                    break;
+                case 2:
+                    SettingMillBlack(2, 0, 1);
+                    SettingMillBlack(2, 14, 23);
+                    break;
+                case 3:
+                    SettingMillBlack(3, 4, 5);
+                    SettingMillBlack(3, 10, 18);
+                    break;
+                case 4:
+                    SettingMillBlack(4, 3, 5);
+                    SettingMillBlack(4, 1, 7);
+                    break;
+                case 5:
+                    SettingMillBlack(5, 4, 3);
+                    SettingMillBlack(5, 13, 20);
+                    break;
+                case 6:
+                    SettingMillBlack(6, 7, 8);
+                    SettingMillBlack(6, 11, 15);
+                    break;
+                case 7:
+                    SettingMillBlack(7, 6, 8);
+                    SettingMillBlack(7, 4, 1);
+                    break;
+                case 8:
+                    SettingMillBlack(8, 7, 6);
+                    SettingMillBlack(8, 12, 17);
+                    break;
+                case 9:
+                    SettingMillBlack(9, 10, 11);
+                    SettingMillBlack(9, 0, 21);
+                    break;
+                case 10:
+                    SettingMillBlack(10, 9, 11);
+                    SettingMillBlack(10, 3, 18);
+                    break;
+                case 11:
+                    SettingMillBlack(11, 10, 9);
+                    SettingMillBlack(11, 6, 15);
+                    break;
+                case 12:
+                    SettingMillBlack(12, 13, 14);
+                    SettingMillBlack(12, 8, 17);
+                    break;
+                case 13:
+                    SettingMillBlack(13, 12, 14);
+                    SettingMillBlack(13, 5, 20);
+                    break;
+                case 14:
+                    SettingMillBlack(14, 13, 12);
+                    SettingMillBlack(14, 2, 23);
+                    break;
+                case 15:
+                    SettingMillBlack(15, 16, 17);
+                    SettingMillBlack(15, 11, 6);
+                    break;
+                case 16:
+                    SettingMillBlack(16, 15, 17);
+                    SettingMillBlack(16, 19, 22);
+                    break;
+                case 17:
+                    SettingMillBlack(17, 16, 15);
+                    SettingMillBlack(17, 12, 8);
+                    break;
+                case 18:
+                    SettingMillBlack(18, 19, 20);
+                    SettingMillBlack(18, 3, 10);
+                    break;
+                case 19:
+                    SettingMillBlack(19, 18, 20);
+                    SettingMillBlack(19, 16, 22);
+                    break;
+                case 20:
+                    SettingMillBlack(20, 19, 18);
+                    SettingMillBlack(20, 13, 5);
+                    break;
+                case 21:
+                    SettingMillBlack(21, 22, 23);
+                    SettingMillBlack(21, 9, 0);
+                    break;
+                case 22:
+                    SettingMillBlack(22, 21, 23);
+                    SettingMillBlack(22, 19, 16);
+                    break;
+                case 23:
+                    SettingMillBlack(23, 22, 21);
+                    SettingMillBlack(23, 14, 2);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

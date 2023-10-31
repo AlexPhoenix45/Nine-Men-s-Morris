@@ -7,6 +7,7 @@ public class Slots : MonoBehaviour
     public bool isEmpty = true;
     public bool isWhite = false;
     public int slotValue;
+    public bool isMilled;
 
     public void setPiece(string piece)
     {
@@ -31,6 +32,14 @@ public class Slots : MonoBehaviour
         {
             gameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
             isEmpty = true;
+        }
+        else if (piece == "MillWhite")
+        {
+            gameObject.GetComponent<SpriteRenderer>().color = Color.green;
+        }
+        else if (piece == "MillBlack")
+        {
+            gameObject.GetComponent<SpriteRenderer>().color = Color.blue;
         }
     }
 
