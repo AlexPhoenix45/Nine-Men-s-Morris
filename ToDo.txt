@@ -2,8 +2,13 @@ TODO:
 - Select slots and place chesspieces (done)
 - Switch betwwen 2 players (done)
 - Moving chesspiece (done)
-- Check for 3 in a rows and removing 
-chesspiece
+- Check for 3 in a rows (mill) and removing 
+opponent chesspiece (just created mill counted,
+not include old mill)
+- If all of opponent chesspiece is milled,
+player can remove one of there piece in
+mill (done)
+- Jump Move & End Game
 
 RULES:
 - Starting:
