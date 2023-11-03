@@ -5,26 +5,26 @@ using UnityEngine;
 public class Table : MonoBehaviour
 {
     public static Table Instance;
-    private enum CurrentPlayer
+    public enum CurrentPlayer
     { 
         White,
         Black
     }
 
     public Slots[] slots;
-    private CurrentPlayer currentPlayer = CurrentPlayer.White;
+    public CurrentPlayer currentPlayer = CurrentPlayer.White;
     public Player whitePlayer;
     public Player blackPlayer;
 
     //This part is for moving a chesspiece and Jump move
-    private bool selectToMove = false;
-    private List<int> adjacentSlots = new List<int>();
-    private int lastestSlot;
-    private List<int> emptySlots = new List<int>(); //List of all empty slots
-    private bool isJumpMove;
+    public bool selectToMove = false;
+    public List<int> adjacentSlots = new List<int>();
+    public int lastestSlot;
+    public List<int> emptySlots = new List<int>(); //List of all empty slots
+    public bool isJumpMove;
 
     //This part is for removing a chesspiece
-    private bool removingMove = false;
+    public bool removingMove = false;
 
     private void Start() //Set slot value for each empty slot
     {
@@ -41,8 +41,9 @@ public class Table : MonoBehaviour
         }
     }
     
-    public void Evaluate(int slotValue)
+    public IEnumerator Evaluate(int slotValue)
     {
+        yield return new WaitForSeconds(0.2f);
         if (selectToMove)
         {
             if (!isJumpMove)
@@ -88,19 +89,7 @@ public class Table : MonoBehaviour
                 CheckChesspieceAndShowAdjacent(slotValue, true);
                 //Jump Move
             }
-            else if (!CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep == 0 && ReturnCurrentPlayer(currentPlayer).pieceLive == 2) //Neu nguoi choi chi con lai 2 chesspiece, nguoi choi con lai chien thang
-            {
-                if (currentPlayer == CurrentPlayer.White)
-                {
-                    print("Player Black Win!");
-                }
-                else
-                {
-                    print("Player White Win!");
-                }
-            }
         }
-
     }
     private bool CheckIfSlotIsEmpty(int slotValue)
     {
@@ -143,6 +132,7 @@ public class Table : MonoBehaviour
             {
                 print("Black can remove a chess piece from White");
                 removingMove = true;
+                Bot.Instance.CallBot();
             }
             else
             {
@@ -290,6 +280,7 @@ public class Table : MonoBehaviour
         if (currentPlayer == CurrentPlayer.White)
         {
             currentPlayer = CurrentPlayer.Black;
+            Bot.Instance.CallBot();
         }
         else if (currentPlayer == CurrentPlayer.Black)
         {

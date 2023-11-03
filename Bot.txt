@@ -1,0 +1,33 @@
+- quét tất cả 24 ô trên bàn cờ
+
+Starting (White - Player, Black - Bot)
+- Khi người chơi đặt quân đầu tiên, 
+bot đặt 1 ô bất kỳ (hoặc block player tạo
+mill)
+- Khi Playẻ sắp tạo mill, block đường đi đó
+- trong khi đó, xét trên các đường có thể 
+tạo thành mill, nếu có nước đi nào có thể
+tạo thành mill, sử dụng nước đi đó
+- Khi ăn 1 quân 
+
+Starting:
+Đặt Chesspiece:
+- Xét trên tất cả các đường đi (3 in a rows)
+
+1. Tạo mill
+2. Block mill của người chơi
+2. 
+
+Midgame:
+Di chuyển Chesspiece:
+1. Ưu tiên tạo thành 1 mill (Khi những ô
+bên cạnh mill đó trống, di chuyển qua lại 
+để tjao thành mill
+2. Block mill của người chơi khi số 1 khôn
+thực hiện được
+
+Note:
+- Xét các possible mill, không xét những cái
+đã tạo thành mill rồi
+- Tổng hợp các possible move, và chỉ di
+chuyển 1 lần

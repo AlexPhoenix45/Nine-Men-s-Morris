@@ -2751,6 +2751,7 @@ GameObject:
   m_Component:
   - component: {fileID: 892824994}
   - component: {fileID: 892824995}
+  - component: {fileID: 892824996}
   m_Layer: 0
   m_Name: Black Player
   m_TagString: Untagged
@@ -2787,6 +2788,18 @@ MonoBehaviour:
   pieceSleep: 9
   pieceLive: 0
   pieceDie: 0
+--- !u!114 &892824996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 892824993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 979b2610084684f41b25a0ee9e79d107, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1033441455
 GameObject:
   m_ObjectHideFlags: 0
@@ -4113,8 +4126,14 @@ MonoBehaviour:
   - {fileID: 138605250}
   - {fileID: 476820523}
   - {fileID: 2056457631}
+  currentPlayer: 0
   whitePlayer: {fileID: 452254589}
   blackPlayer: {fileID: 892824995}
+  selectToMove: 0
+  adjacentSlots: 
+  lastestSlot: 0
+  emptySlots: 
+  isJumpMove: 0
 --- !u!1 &1614732972
 GameObject:
   m_ObjectHideFlags: 0
