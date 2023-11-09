@@ -371,27 +371,87 @@ public class Bot : MonoBehaviour
             bool skip = false;
             bool hasBlack = false;
 
-            foreach (int i in millSlots)
+            bool IfEveryPieceIsMilled(bool isWhite)
             {
-                if (slots[i].isWhite && !slots[i].isEmpty && !slots[i].isMilled) //If that piece is white and not milled, ++ to piece in row
+                if (isWhite) //Chesspiece mau Trang
                 {
-                    pieceInRow++;
-                    pieceNeedToRemove = i;
-                    if (!hasBlack)
+                    for (int i = 0; i < 24; i++)
                     {
-                        pieceForRandomRemove = i;
+                        if (!slots[i].isEmpty)
+                        {
+                            if (slots[i].isWhite && !slots[i].isMilled)
+                            {
+                                return false;
+                            }
+                        }
                     }
+                    return true;
                 }
-                else if (!slots[i].isWhite && !slots[i].isEmpty) //But if there is a black piece, don't need to do anything
+                else //Chesspiece mau den
                 {
-                    skip = true;
-                    hasBlack = true;
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isEmpty)
+                        {
+                            if (!slots[i].isWhite && !slots[i].isMilled)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
                 }
             }
-            if (pieceInRow >= 2 && !skip && Table.Instance.currentPlayer == Table.CurrentPlayer.Black)
+
+            if (!IfEveryPieceIsMilled(true))
             {
-                possibleMoves.Add(pieceNeedToRemove);
-                isNeedRandomMove = false;
+                foreach (int i in millSlots)
+                {
+                    if (slots[i].isWhite && !slots[i].isEmpty && !slots[i].isMilled) //If that piece is white and not milled, ++ to piece in row
+                    {
+                        pieceInRow++;
+                        pieceNeedToRemove = i;
+                        if (!hasBlack)
+                        {
+                            pieceForRandomRemove = i;
+                        }
+                    }
+                    else if (!slots[i].isWhite && !slots[i].isEmpty) //But if there is a black piece, don't need to do anything
+                    {
+                        skip = true;
+                        hasBlack = true;
+                    }
+                }
+                if (pieceInRow >= 2 && !skip && Table.Instance.currentPlayer == Table.CurrentPlayer.Black)
+                {
+                    possibleMoves.Add(pieceNeedToRemove);
+                    isNeedRandomMove = false;
+                }
+            }
+            else
+            {
+                foreach (int i in millSlots)
+                {
+                    if (slots[i].isWhite && !slots[i].isEmpty) //If that piece is white and not milled, ++ to piece in row
+                    {
+                        pieceInRow++;
+                        pieceNeedToRemove = i;
+                        if (!hasBlack)
+                        {
+                            pieceForRandomRemove = i;
+                        }
+                    }
+                    else if (!slots[i].isWhite && !slots[i].isEmpty) //But if there is a black piece, don't need to do anything
+                    {
+                        skip = true;
+                        hasBlack = true;
+                    }
+                }
+                if (pieceInRow >= 2 && !skip && Table.Instance.currentPlayer == Table.CurrentPlayer.Black)
+                {
+                    possibleMoves.Add(pieceNeedToRemove);
+                    isNeedRandomMove = false;
+                }
             }
         }
 
