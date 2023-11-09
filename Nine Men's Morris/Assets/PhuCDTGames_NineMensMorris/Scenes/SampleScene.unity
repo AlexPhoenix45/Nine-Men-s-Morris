@@ -2800,6 +2800,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 979b2610084684f41b25a0ee9e79d107, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  possibleMoves: 
 --- !u!1 &1033441455
 GameObject:
   m_ObjectHideFlags: 0
@@ -4134,6 +4135,8 @@ MonoBehaviour:
   lastestSlot: 0
   emptySlots: 
   isJumpMove: 0
+  removingMove: 0
+  isBotPlaying: 1
 --- !u!1 &1614732972
 GameObject:
   m_ObjectHideFlags: 0

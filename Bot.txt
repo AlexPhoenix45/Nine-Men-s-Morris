@@ -31,3 +31,20 @@ Note:
 đã tạo thành mill rồi
 - Tổng hợp các possible move, và chỉ di
 chuyển 1 lần
+
+Nếu 1 người chơi không thể di chuyển nữa
+thì người đó thua cuộc
+chưa làm phần endgame
+
+Midgame (fixed)
+- Xem những bộ mill đã có sẵn, xem trong 
+3 chesspiece, những chesspiêc nào mà những 
+ô bên cạnh nó trống, thì di chuyển qua lại
+đó để tạo thành mill
+- Xem những bộ mill đang thiếu đang thiếu 1
+chesspiece, xem ô bên cạnh chesspiece đó
+có thể tạo thành mill không, nếu có thì di 
+chuyển nó qua để tạo mill
+- Nếu không đáp ứng được nhu cầu trên, 
+chuyển qua block mill của bên Trắng
+(làm y như với quân đen bên trên)

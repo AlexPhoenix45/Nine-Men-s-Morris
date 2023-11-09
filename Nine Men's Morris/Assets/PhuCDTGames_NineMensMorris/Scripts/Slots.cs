@@ -75,7 +75,6 @@ public class Slots : MonoBehaviour
 
     public void OnMouseDown()
     {
-        ClearLog();
         print("Player choose: " + slotValue);
         StartCoroutine(Table.Instance.Evaluate(slotValue));
     }

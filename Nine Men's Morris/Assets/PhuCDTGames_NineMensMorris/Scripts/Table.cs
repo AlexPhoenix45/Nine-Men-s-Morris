@@ -26,6 +26,9 @@ public class Table : MonoBehaviour
     //This part is for removing a chesspiece
     public bool removingMove = false;
 
+    //Thí part is for bot
+    public bool isBotPlaying;
+
     private void Start() //Set slot value for each empty slot
     {
         int slotValue = 0;
@@ -265,6 +268,7 @@ public class Table : MonoBehaviour
                     {
                         print("Black can remove a chess piece from White");
                         removingMove = true;
+                        Bot.Instance.CallBot();
                     }
                     else
                     {
@@ -280,7 +284,10 @@ public class Table : MonoBehaviour
         if (currentPlayer == CurrentPlayer.White)
         {
             currentPlayer = CurrentPlayer.Black;
-            Bot.Instance.CallBot();
+            if (isBotPlaying)
+            {
+                Bot.Instance.CallBot();
+            }
         }
         else if (currentPlayer == CurrentPlayer.Black)
         {
