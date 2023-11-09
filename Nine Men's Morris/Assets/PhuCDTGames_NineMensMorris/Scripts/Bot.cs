@@ -8,7 +8,7 @@ public class Bot : MonoBehaviour
 {
     public static Bot Instance;
     private Slots[] slots;
-    public List<int> possibleMoves = new List<int>();
+    private List<int> possibleMoves = new List<int>();
     private bool oldMove = false; //Day la phuong thuc de di chuyen qua lai 1 chesspiece de tao thanh` Mill
     private int oldFirstMove = -1;
     private int oldSecondMove = -1;
@@ -1131,13 +1131,210 @@ public class Bot : MonoBehaviour
             }
 
         }
-        else if (isSet && slots[oldFirstMove].isEmpty) //Day la khi di lai nuoc di tu mot Mill ra, va toValue phai la slot trong'
+        else if (isSet && slots[oldFirstMove].isEmpty && (!slots[oldSecondMove].isEmpty && !slots[oldSecondMove].isWhite)) //Day la khi di lai nuoc di tu mot Mill ra, va toValue phai la slot trong'
         {
             Move(oldSecondMove, oldFirstMove);
         }
-        else if (isSet && slots[oldSecondMove].isEmpty) //Day la khi 1 chesspiece khi di chuyen ra khoi mill ma` bi remove ngay sau do
+        else if (isSet && slots[oldSecondMove].isEmpty && slots[oldFirstMove].isEmpty) //Day la khi 1 chesspiece khi di chuyen ra khoi mill ma` bi remove ngay sau do
         {
-            MidGameMove_SecondMethod(false, 0, 0);
+            List<int> firstMove = new List<int>();
+            List<int> secondMove = new List<int>();
+            bool hasFoundAWay = false;
+
+            void CheckForLegalMove(int a, int b, int c)
+            {
+                int[] millSlot = { a, b, c };
+
+                int chesspieceCount = 0;
+                foreach (int slot in millSlot)
+                {
+                    if (!slots[slot].isWhite && !slots[slot].isEmpty) //Neu slot do co chesspiece mau` den
+                    {
+                        chesspieceCount++;
+                    }
+                }
+
+                if (chesspieceCount == 1)
+                {
+                    foreach (int slot in millSlot)
+                    {
+                        //Check 1 o bat ky, xem o ben canh do co chesspiece mau` den khong thi chon o do
+                        if (slots[slot].isEmpty) //Xem slot do co dang trong hay k
+                        {
+                            foreach (int childSlot in CheckAdjacent(slot)) //Xem nhung o ben canh no
+                            {
+                                if (!slots[childSlot].isWhite && !slots[childSlot].isEmpty && !slots[childSlot].isMilled && childSlot != a && childSlot != b && childSlot != c) //Xem o ben canh no, o nao` la o mau` den va khong Milled
+                                {
+                                    secondMove.Add(childSlot);
+                                }
+                            }
+                            firstMove.Add(slot);
+                        }
+                    }
+                }
+
+
+                if (firstMove.Count > 0 && secondMove.Count > 0)
+                {
+                    string message = "";
+                    foreach (int i in firstMove)
+                    {
+                        message += i + ", ";
+                    }
+                    print("First Move: " + message);
+                    message = "";
+                    foreach (int i in secondMove)
+                    {
+                        message += i + ", ";
+                    }
+                    print("Second Move: " + message);
+                }
+
+                if (firstMove.Count > 0 && secondMove.Count > 0)
+                {
+                    int corrected2ndMoveIndex = Random.Range(0, secondMove.Count);
+                    int corrected1stMove = -1;
+
+                    foreach (int index in CheckAdjacent(secondMove[corrected2ndMoveIndex]))
+                    {
+                        if (slots[index].isEmpty)
+                        {
+                            corrected1stMove = index;
+                        }
+                    }
+
+                    if (corrected1stMove != -1)
+                    {
+                        print("Next Move: " + secondMove[corrected2ndMoveIndex] + " - " + corrected1stMove);
+                        Move(secondMove[corrected2ndMoveIndex], corrected1stMove);
+                        hasFoundAWay = true;
+                    }
+                }
+            }
+
+            for (int i = 0; i < 24; i++) //Chay het 24 o de xem o nao` co possible mill, uu tien tao Mill cho Black
+            {
+                if (hasFoundAWay)
+                {
+                    return;
+                }
+                switch (i)
+                {
+                    case 0:
+                        CheckForLegalMove(0, 1, 2); //Tai day se ta ve mot array neu no tao thanh mot Mill
+                        CheckForLegalMove(0, 9, 21);
+                        break;
+                    case 1:
+                        CheckForLegalMove(1, 0, 2);
+                        CheckForLegalMove(1, 4, 7);
+                        break;
+                    case 2:
+                        CheckForLegalMove(2, 0, 1);
+                        CheckForLegalMove(2, 14, 23);
+                        break;
+                    case 3:
+                        CheckForLegalMove(3, 4, 5);
+                        CheckForLegalMove(3, 10, 18);
+                        break;
+                    case 4:
+                        CheckForLegalMove(4, 3, 5);
+                        CheckForLegalMove(4, 1, 7);
+                        break;
+                    case 5:
+                        CheckForLegalMove(5, 4, 3);
+                        CheckForLegalMove(5, 13, 20);
+                        break;
+                    case 6:
+                        CheckForLegalMove(6, 7, 8);
+                        CheckForLegalMove(6, 11, 15);
+                        break;
+                    case 7:
+                        CheckForLegalMove(7, 6, 8);
+                        CheckForLegalMove(7, 4, 1);
+                        break;
+                    case 8:
+                        CheckForLegalMove(8, 7, 6);
+                        CheckForLegalMove(8, 12, 17);
+                        break;
+                    case 9:
+                        CheckForLegalMove(9, 10, 11);
+                        CheckForLegalMove(9, 0, 21);
+                        break;
+                    case 10:
+                        CheckForLegalMove(10, 9, 11);
+                        CheckForLegalMove(10, 3, 18);
+                        break;
+                    case 11:
+                        CheckForLegalMove(11, 10, 9);
+                        CheckForLegalMove(11, 6, 15);
+                        break;
+                    case 12:
+                        CheckForLegalMove(12, 13, 14);
+                        CheckForLegalMove(12, 8, 17);
+                        break;
+                    case 13:
+                        CheckForLegalMove(13, 12, 14);
+                        CheckForLegalMove(13, 5, 20);
+                        break;
+                    case 14:
+                        CheckForLegalMove(14, 13, 12);
+                        CheckForLegalMove(14, 2, 23);
+                        break;
+                    case 15:
+                        CheckForLegalMove(15, 16, 17);
+                        CheckForLegalMove(15, 11, 6);
+                        break;
+                    case 16:
+                        CheckForLegalMove(16, 15, 17);
+                        CheckForLegalMove(16, 19, 22);
+                        break;
+                    case 17:
+                        CheckForLegalMove(17, 16, 15);
+                        CheckForLegalMove(17, 12, 8);
+                        break;
+                    case 18:
+                        CheckForLegalMove(18, 19, 20);
+                        CheckForLegalMove(18, 3, 10);
+                        break;
+                    case 19:
+                        CheckForLegalMove(19, 18, 20);
+                        CheckForLegalMove(19, 16, 22);
+                        break;
+                    case 20:
+                        CheckForLegalMove(20, 19, 18);
+                        CheckForLegalMove(20, 13, 5);
+                        break;
+                    case 21:
+                        CheckForLegalMove(21, 22, 23);
+                        CheckForLegalMove(21, 9, 0);
+                        break;
+                    case 22:
+                        CheckForLegalMove(22, 21, 23);
+                        CheckForLegalMove(22, 19, 16);
+                        break;
+                    case 23:
+                        CheckForLegalMove(23, 22, 21);
+                        CheckForLegalMove(23, 14, 2);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            //This is when we have no way left
+            for (int i = 0; i < 24; i++) //O day se random nuoc di
+            {
+                if (!slots[i].isEmpty && !slots[i].isWhite) //Neu gap slot nao la o den
+                {
+                    foreach (int j in CheckAdjacent(i)) //Va ben canh no co slot trong
+                    {
+                        if (slots[j].isEmpty) //Thi di chuyen tu slot do sang slot trong
+                        {
+                            Move(i, j);
+                        }
+                    }
+                }
+            }
         }
         else
         {

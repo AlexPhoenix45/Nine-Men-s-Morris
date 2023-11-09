@@ -48,3 +48,13 @@ chuyển nó qua để tạo mill
 - Nếu không đáp ứng được nhu cầu trên, 
 chuyển qua block mill của bên Trắng
 (làm y như với quân đen bên trên)
+
+===
+Vấn đề cuối cùng:
+Khi có sẵn một mill, nước đi đùa tiên là di 
+chuyển 1 chesspiece ra khỏi đó, với mục 
+đích là dùng chính chesspiece đó di chuyển
+lại để tạo thành 1 Mill. Nhưng khi 
+chesspiece đó bị remove đi, thì bot không 
+di chuyển nữa (fixed)
+- Cách di chuyển khi còn 3 chesspiece

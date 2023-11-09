@@ -12,6 +12,7 @@ public class Table : MonoBehaviour
     }
 
     public Slots[] slots;
+    public GameObject[] grids;
     public CurrentPlayer currentPlayer = CurrentPlayer.White;
     public Player whitePlayer;
     public Player blackPlayer;
@@ -57,7 +58,6 @@ public class Table : MonoBehaviour
             }
             else
             {
-                print("jump");
                 MoveChesspiece(lastestSlot, slotValue, emptySlots);
                 emptySlots.Clear();
                 selectToMove = false;
@@ -112,8 +112,8 @@ public class Table : MonoBehaviour
         if (currentPlayer == CurrentPlayer.White) //Neu nhu nguoi choi hien tai la trang thi dat chesspiece trang vao slot do
         {
             slots[slotValue].setPiece("White");
-            whitePlayer.pieceSleep--;
-            whitePlayer.pieceLive++;
+            whitePlayer.ChangePieceAmount("pieceSleep", -1);
+            whitePlayer.ChangePieceAmount("pieceLive", +1);
             CheckRemainingMill(slotValue, true); //Tai day check xem da co nhung Mill nao`
             if (CheckNewMillCreated(slotValue, true) == "True, White") //Tai day check xem lieu chesspiece vua dat xuong co tao thanh Mill nao` khong
             {
@@ -128,8 +128,8 @@ public class Table : MonoBehaviour
         else if (currentPlayer == CurrentPlayer.Black) //Neu nhu nguoi choi hien tai la den thi dat chesspiece den vao slot do
         {
             slots[slotValue].setPiece("Black");
-            blackPlayer.pieceSleep--;
-            blackPlayer.pieceLive++;
+            blackPlayer.ChangePieceAmount("pieceSleep", -1);
+            blackPlayer.ChangePieceAmount("pieceLive", +1);
             CheckRemainingMill(slotValue, false); //Tai day check xem da co nhung Mill nao`
             if (CheckNewMillCreated(slotValue, false) == "True, Black") //Tai day check xem lieu chesspiece vua dat xuong co tao thanh Mill nao` khong
             {
@@ -143,7 +143,6 @@ public class Table : MonoBehaviour
             }
         }
     } //Dat chesspiece len ban`
-
 
     private void CheckChesspieceAndShowAdjacent(int slotValue, bool jumpMove) //Hien len cac o ben canh chesspiece cua nguoi choi de di chuyen
     {
@@ -391,6 +390,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("MillWhite");
                     slots[prev].setPiece("MillWhite");
                     slots[next].setPiece("MillWhite");
+                    SetGrid(true, current, prev, next);
                 }
             }
         }
@@ -403,6 +403,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("MillBlack");
                     slots[prev].setPiece("MillBlack");
                     slots[next].setPiece("MillBlack");
+                    SetGrid(true, current, prev, next);
                 }
             }
         }
@@ -628,6 +629,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("Empty");
                     slots[prev].setPiece("White");
                     slots[next].setPiece("White");
+                    SetGrid(false, current, prev, next);
                 }
             }
         }
@@ -640,6 +642,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("Empty");
                     slots[prev].setPiece("Black");
                     slots[next].setPiece("Black");
+                    SetGrid(false, current, prev, next);
                 }
             }
         }
@@ -867,6 +870,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("MillWhite");
                     slots[prev].setPiece("MillWhite");
                     slots[next].setPiece("MillWhite");
+                    SetGrid(true, current, prev, next);
                 }
             }
         }
@@ -880,6 +884,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("MillBlack");
                     slots[prev].setPiece("MillBlack");
                     slots[next].setPiece("MillBlack");
+                    SetGrid(true, current, prev, next);
                 }
             }
         }
@@ -1136,8 +1141,8 @@ public class Table : MonoBehaviour
             {
                 if (!slots[slotValue].isWhite && !slots[slotValue].isMilled && !slots[slotValue].isEmpty)
                 {
-                    blackPlayer.pieceDie++;
-                    blackPlayer.pieceLive--;
+                    blackPlayer.ChangePieceAmount("pieceDie", +1);
+                    blackPlayer.ChangePieceAmount("pieceLive", -1);
                     slots[slotValue].setPiece("Empty");
                     UnCheckMill(slotValue, false); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
 
@@ -1156,8 +1161,8 @@ public class Table : MonoBehaviour
             {
                 if (!slots[slotValue].isWhite && slots[slotValue].isMilled && !slots[slotValue].isEmpty)
                 {
-                    blackPlayer.pieceDie++;
-                    blackPlayer.pieceLive--;
+                    blackPlayer.ChangePieceAmount("pieceDie", +1);
+                    blackPlayer.ChangePieceAmount("pieceLive", -1);
                     slots[slotValue].setPiece("Empty");
                     UnCheckMill(slotValue, false); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
 
@@ -1179,8 +1184,8 @@ public class Table : MonoBehaviour
             {
                 if (slots[slotValue].isWhite && !slots[slotValue].isMilled && !slots[slotValue].isEmpty)
                 {
-                    whitePlayer.pieceDie++;
-                    whitePlayer.pieceLive--;
+                    whitePlayer.ChangePieceAmount("pieceDie", +1);
+                    whitePlayer.ChangePieceAmount("pieceLive", -1);
                     slots[slotValue].setPiece("Empty");
                     UnCheckMill(slotValue, true); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
 
@@ -1199,8 +1204,8 @@ public class Table : MonoBehaviour
             {
                 if (slots[slotValue].isWhite && slots[slotValue].isMilled && !slots[slotValue].isEmpty)
                 {
-                    whitePlayer.pieceDie++;
-                    whitePlayer.pieceLive--;
+                    whitePlayer.ChangePieceAmount("pieceDie", +1);
+                    whitePlayer.ChangePieceAmount("pieceLive", -1);
                     slots[slotValue].setPiece("Empty");
                     UnCheckMill(slotValue, true); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
 
@@ -1213,6 +1218,187 @@ public class Table : MonoBehaviour
                     }
                     removingMove = false;
                     SwitchPlayer();
+                }
+            }
+        }
+    }
+
+    private void SetGrid(bool value, int a, int b, int c)
+    {
+        print("CALL SET GRID: " + a + "-" + b + "-" + c + value);
+        if ((a == 0 || a == 1 || a == 2) && a != b && a != c)
+        {
+            if ((b == 0 || b == 1 || b == 2) && b != a && b != c)
+            {
+                if ((c == 0 || c == 1 || c == 2) && c != a && c != b)
+                {
+                    grids[0].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 3 || a == 4 || a == 5) && a != b && a != c)
+        {
+            if ((b == 3 || b == 4 || b == 5) && b != a && b != c)
+            {
+                if ((c == 3 || c == 4 || c == 5) && c != a && c != b)
+                {
+                    grids[1].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 6 || a == 7 || a == 8) && a != b && a != c)
+        {
+            if ((b == 6 || b == 7 || b == 8) && b != a && b != c)
+            {
+                if ((c == 6 || c == 7 || c == 8) && c != a && c != b)
+                {
+                    grids[2].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 15 || a == 16 || a == 17) && a != b && a != c)
+        {
+            if ((b == 15 || b == 16 || b == 17) && b != a && b != c)
+            {
+                if ((c == 15 || c == 16 || c == 17) && c != a && c != b)
+                {
+                    grids[3].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 18 || a == 19 || a == 20) && a != b && a != c)
+        {
+            if ((b == 18 || b == 19 || b == 20) && b != a && b != c)
+            {
+                if ((c == 18 || c == 19 || c == 20) && c != a && c != b)
+                {
+                    grids[4].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 21 || a == 22 || a == 23) && a != b && a != c)
+        {
+            if ((b == 21 || b == 22 || b == 23) && b != a && b != c)
+            {
+                if ((c == 21 || c == 22 || c == 23) && c != a && c != b)
+                {
+                    grids[5].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 0 || a == 9 || a == 21) && a != b && a != c)
+        {
+            if ((b == 0 || b == 9 || b == 21) && b != a && b != c)
+            {
+                if ((c == 0 || c == 9 || c == 21) && c != a && c != b)
+                {
+                    grids[6].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 3 || a == 10 || a == 18) && a != b && a != c)
+        {
+            if ((b == 3 || b == 10 || b == 18) && b != a && b != c)
+            {
+                if ((c == 3 || c == 10 || c == 18) && c != a && c != b)
+                {
+                    grids[7].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 6 || a == 11 || a == 15) && a != b && a != c)
+        {
+            if ((b == 6 || b == 11 || b == 15) && b != a && b != c)
+            {
+                if ((c == 6 || c == 11 || c == 15) && c != a && c != b)
+                {
+                    grids[8].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 8 || a == 12 || a == 17) && a != b && a != c)
+        {
+            if ((b == 8 || b == 12 || b == 17) && b != a && b != c)
+            {
+                if ((c == 8 || c == 12 || c == 17) && c != a && c != b)
+                {
+                    grids[9].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 5 || a == 13 || a == 20) && a != b && a != c)
+        {
+            if ((b == 5 || b == 13 || b == 20) && b != a && b != c)
+            {
+                if ((c == 5 || c == 13 || c == 20) && c != a && c != b)
+                {
+                    grids[10].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 2 || a == 14 || a == 23) && a != b && a != c)
+        {
+            if ((b == 2 || b == 14 || b == 23) && b != a && b != c)
+            {
+                if ((c == 2 || c == 14 || c == 23) && c != a && c != b)
+                {
+                    print(value);
+                    grids[11].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 1 || a == 4 || a == 7) && a != b && a != c)
+        {
+            if ((b == 1 || b == 4 || b == 7) && b != a && b != c)
+            {
+                if ((c == 1 || c == 4 || c == 7) && c != a && c != b)
+                {
+                    grids[12].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 16 || a == 19 || a == 22) && a != b && a != c)
+        {
+            if ((b == 16 || b == 19 || b == 22) && b != a && b != c)
+            {
+                if ((c == 16 || c == 19 || c == 22) && c != a && c != b)
+                {
+                    grids[13].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 9 || a == 10 || a == 11) && a != b && a != c)
+        {
+            if ((b == 9 || b == 10 || b == 11) && b != a && b != c)
+            {
+                if ((c == 9 || c == 10 || c == 11) && c != a && c != b)
+                {
+                    grids[14].SetActive(value);
+                }
+            }
+        }
+        
+        if ((a == 12 || a == 13 || a == 14) && a != b && a != c)
+        {
+            if ((b == 12 || b == 13 || b == 14) && b != a && b != c)
+            {
+                if ((c == 12 || c == 13 || c == 14) && c != a && c != b)
+                {
+                    grids[15].SetActive(value);
                 }
             }
         }
