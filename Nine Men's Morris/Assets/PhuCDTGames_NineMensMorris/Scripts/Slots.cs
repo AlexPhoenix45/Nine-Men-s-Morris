@@ -15,6 +15,12 @@ public class Slots : MonoBehaviour
     [Header("Chess Piece")]
     public GameObject whitePiece;
     public GameObject blackPiece;
+    public GameObject flare;
+
+    private void Start()
+    {
+        setPiece("Marker");
+    }
 
     public void setPiece(string piece)
     {
@@ -29,6 +35,7 @@ public class Slots : MonoBehaviour
             //gameObject.GetComponent<SpriteRenderer>().color = Color.white;
             whitePiece.SetActive(true);
             blackPiece.SetActive(false);
+            flare.SetActive(false);
         }
         else if (piece == "Black") //Slot do = chesspiece Den
         {
@@ -41,6 +48,7 @@ public class Slots : MonoBehaviour
             //gameObject.GetComponent<SpriteRenderer>().color = Color.black;
             blackPiece.SetActive(true);
             whitePiece.SetActive(false);
+            flare.SetActive(false);
         }
         else if (piece == "Empty") //Day la slot rong~
         {
@@ -52,6 +60,7 @@ public class Slots : MonoBehaviour
             //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(1, 0, 0, 0);
             whitePiece.SetActive(false);
             blackPiece.SetActive(false);
+            flare.SetActive(false);
         }
         else if (piece == "Marker") //Slot do la nhung duong co the di cua chesspiece duoc chon
         {
@@ -59,18 +68,21 @@ public class Slots : MonoBehaviour
             isEmpty = true;
             state = "Marker";
             isMilled = false;
+            flare.SetActive(true);
         }
         else if (piece == "MillWhite") //Day la slot duoc tao boi 1 mill (3 in a row) - Mau Trang
         {
             //gameObject.GetComponent<SpriteRenderer>().color = Color.white;
             state = "MillWhite";
             isMilled = true;
+            flare.SetActive(false);
         }
         else if (piece == "MillBlack") //Day la slot duoc tao boi 1 mill (3 in a row) - Mau Trang
         {
             //gameObject.GetComponent<SpriteRenderer>().color = Color.black;
             state = "MillBlack";
             isMilled = true;
+            flare.SetActive(false);
         }
     }
 

@@ -11,6 +11,8 @@ public class Player : MonoBehaviour
     public GameObject[] sleepingPiece;
     private int currentSleepingIndex = 8;
 
+    public GameObject indicator;
+
     public void ChangePieceAmount(string type, int amount)
     {
         if (type == "pieceSleep")
@@ -35,5 +37,10 @@ public class Player : MonoBehaviour
             sleepingPiece[currentSleepingIndex].gameObject.SetActive(false);
             currentSleepingIndex--;
         }
+    }
+
+    public void MyTurn(bool value)
+    {
+        indicator.SetActive(value);
     }
 }

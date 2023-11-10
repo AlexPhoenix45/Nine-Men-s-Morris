@@ -43,6 +43,9 @@ public class Table : MonoBehaviour
         {
             Instance = this;
         }
+
+        whitePlayer.MyTurn(true);
+        blackPlayer.MyTurn(false);
     }
     
     public IEnumerator Evaluate(int slotValue)
@@ -282,6 +285,8 @@ public class Table : MonoBehaviour
     {
         if (currentPlayer == CurrentPlayer.White)
         {
+            whitePlayer.MyTurn(false);
+            blackPlayer.MyTurn(true);
             currentPlayer = CurrentPlayer.Black;
             if (isBotPlaying)
             {
@@ -290,7 +295,38 @@ public class Table : MonoBehaviour
         }
         else if (currentPlayer == CurrentPlayer.Black)
         {
+            whitePlayer.MyTurn(true);
+            blackPlayer.MyTurn(false);
             currentPlayer = CurrentPlayer.White;
+        }
+
+        CheckForWinning(currentPlayer);
+        CheckIfSuffocated(currentPlayer);
+
+        if (ReturnCurrentPlayer(currentPlayer).pieceSleep == 0)
+        {
+            for (int i = 0; i < 24; i++)
+            {
+                if (slots[i].isEmpty)
+                {
+                    slots[i].setPiece("Empty");
+                }
+            }
+        }
+    }
+
+    private void CheckForWinning(CurrentPlayer current)
+    {
+        if (ReturnCurrentPlayer(current).pieceDie == 7)
+        {
+            if (current == CurrentPlayer.White)
+            {
+                UIController.Instance.SetEndgameText("BLACK WIN!");
+            }
+            else
+            {
+                UIController.Instance.SetEndgameText("WHITE WIN!");
+            }
         }
     }
 
@@ -1400,6 +1436,119 @@ public class Table : MonoBehaviour
                 {
                     grids[15].SetActive(value);
                 }
+            }
+        }
+    }
+
+    private void CheckIfSuffocated(CurrentPlayer current) //Check xem lieu chesspiece cua nguoi choi co the di chuyen duoc nua hay khong
+    {
+        int[] CheckAdjacent(int slotValue)
+        {
+            switch (slotValue)
+            {
+                case 0:
+                    return new int[] { 1, 9 };
+                case 1:
+                    return new int[] { 0, 2, 4 };
+                case 2:
+                    return new int[] { 1, 14 };
+                case 3:
+                    return new int[] { 4, 10 };
+                case 4:
+                    return new int[] { 1, 3, 5, 7 };
+                case 5:
+                    return new int[] { 4, 13 };
+                case 6:
+                    return new int[] { 7, 11 };
+                case 7:
+                    return new int[] { 6, 4, 8 };
+                case 8:
+                    return new int[] { 7, 12 };
+                case 9:
+                    return new int[] { 0, 10, 21 };
+                case 10:
+                    return new int[] { 3, 9, 11, 18 };
+                case 11:
+                    return new int[] { 6, 10, 15 };
+                case 12:
+                    return new int[] { 8, 17, 13 };
+                case 13:
+                    return new int[] { 5, 12, 14, 20 };
+                case 14:
+                    return new int[] { 2, 13, 23 };
+                case 15:
+                    return new int[] { 11, 16 };
+                case 16:
+                    return new int[] { 15, 17, 19 };
+                case 17:
+                    return new int[] { 12, 16 };
+                case 18:
+                    return new int[] { 10, 19 };
+                case 19:
+                    return new int[] { 16, 18, 20, 22 };
+                case 20:
+                    return new int[] { 13, 19 };
+                case 21:
+                    return new int[] { 9, 22 };
+                case 22:
+                    return new int[] { 19, 21, 23 };
+                case 23:
+                    return new int[] { 14, 22 };
+                default:
+                    return new int[] { 0 };
+            }
+        } //Tra ve 1 mang cac slot ben canh slotValue
+
+        List<int> CheckIsEmpty(int[] slotList) //Input la mot mang, tra ve mot List cac slots dang trong
+        {
+            List<int> emptyAdjacentSlot = new List<int>();
+
+            foreach (int i in slotList)
+            {
+                if (slots[i].isEmpty)
+                {
+                    emptyAdjacentSlot.Add(i);
+                }
+            }
+
+            return emptyAdjacentSlot;
+        }
+
+
+        if (current == CurrentPlayer.White && whitePlayer.pieceSleep == 0) //Day la voi nguoi choi White
+        {
+            bool isSuffocated = true;
+            for (int i = 0; i < 24; i++)
+            {
+                if (slots[i].isWhite && !slots[i].isEmpty) //Neu la quan co trang
+                {
+                    if (CheckIsEmpty(CheckAdjacent(i)).Count != 0) //Neu quan co trang do con` cho trong
+                    {
+                        isSuffocated = false;
+                    }
+                }
+            }
+            if (isSuffocated)
+            {
+                UIController.Instance.SetEndgameText("BLACK WINS!");
+            }
+        }
+        else if (current == CurrentPlayer.Black && blackPlayer.pieceSleep == 0) //Day la voi nguoi choi Black
+        {
+            bool isSuffocated = true;
+            for (int i = 0; i < 24; i++)
+            {
+                if (!slots[i].isWhite && !slots[i].isEmpty) //Neu la quan co den
+                {
+                    if (CheckIsEmpty(CheckAdjacent(i)).Count != 0) //Neu quan co den do con` cho trong
+                    {
+                        isSuffocated = false;
+                    }
+                }
+            }
+            if (isSuffocated)
+            {
+                UIController.Instance.SetEndgameText("WHITE WINS!");
             }
         }
     }

@@ -48,14 +48,18 @@ public class Bot : MonoBehaviour
             }
 
             //----------MID GAME-------------
-            if (Table.Instance.blackPlayer.pieceSleep == 0 && !oldMove) //Day la phuong thuc logic cua Mid Game
+            if (Table.Instance.blackPlayer.pieceSleep == 0 && !oldMove && Table.Instance.blackPlayer.pieceLive > 3) //Day la phuong thuc logic cua Mid Game
             {
                 MidGameMove_FirstMethod();
             }
-            else if (Table.Instance.blackPlayer.pieceSleep == 0 && oldMove)
+            else if (Table.Instance.blackPlayer.pieceSleep == 0 && oldMove && Table.Instance.blackPlayer.pieceLive > 3) //Day la phuong thuc khi phuong thuc dau tien khong thuc hien duoc
             {
                 MidGameMove_SecondMethod(oldMove, oldFirstMove, oldSecondMove);
                 oldMove = false;
+            }
+            else //Day la jump move
+            {
+                JumpMove();
             }
         }
     }
@@ -570,6 +574,22 @@ public class Bot : MonoBehaviour
     private void Place()
     {
         string message = "";
+
+        if (removeMove && Table.Instance.blackPlayer.pieceDie == 6) //Va' lai loi cua phan` nay`
+        {
+            message = "";
+            foreach (int move in possibleMoves)
+            {
+                if (slots[move].isWhite && !slots[move].isEmpty)
+                {
+                    StartCoroutine(Table.Instance.Evaluate(move));
+                    break;
+                }
+                message += move + ", ";
+            }
+        }
+
+        message = "";
         foreach (int move in possibleMoves)
         {
             message += move + ", ";
@@ -1176,20 +1196,7 @@ public class Bot : MonoBehaviour
             }
 
             //This is when we have no way left
-            for (int i = 0; i < 24; i++) //O day se random nuoc di
-            {
-                if (!slots[i].isEmpty && !slots[i].isWhite) //Neu gap slot nao la o den
-                {
-                    foreach (int j in CheckAdjacent(i)) //Va ben canh no co slot trong
-                    {
-                        if (slots[j].isEmpty) //Thi di chuyen tu slot do sang slot trong
-                        {
-                            Move(i, j);
-                        }
-                    }
-                }
-            }
-
+            RandomMove();
         }
         else if (isSet && slots[oldFirstMove].isEmpty && (!slots[oldSecondMove].isEmpty && !slots[oldSecondMove].isWhite)) //Day la khi di lai nuoc di tu mot Mill ra, va toValue phai la slot trong'
         {
@@ -1382,35 +1389,420 @@ public class Bot : MonoBehaviour
             }
 
             //This is when we have no way left
-            for (int i = 0; i < 24; i++) //O day se random nuoc di
-            {
-                if (!slots[i].isEmpty && !slots[i].isWhite) //Neu gap slot nao la o den
-                {
-                    foreach (int j in CheckAdjacent(i)) //Va ben canh no co slot trong
-                    {
-                        if (slots[j].isEmpty) //Thi di chuyen tu slot do sang slot trong
-                        {
-                            Move(i, j);
-                        }
-                    }
-                }
-            }
+            RandomMove();
         }
         else
         {
-            for (int i = 0; i < 24; i++) //O day se random nuoc di
+            RandomMove();
+        }
+    }
+
+    private void RandomMove() //Random move chi danh cho black
+    {
+        List<int> randomBlack = new List<int>();
+        for (int i = 0; i < 24; i++) //Xem tren table, luu tat ca nhung vi tri co black
+        {
+            if (!slots[i].isEmpty && !slots[i].isWhite)
             {
-                if (!slots[i].isEmpty && !slots[i].isWhite) //Neu gap slot nao la o den
+                randomBlack.Add(i);
+            }
+        }
+
+        int index = Random.Range(0, randomBlack.Count);
+        int rFromValue = randomBlack[index];
+
+        do
+        {
+            index = Random.Range(0, randomBlack.Count);
+            rFromValue = randomBlack[index];
+        }
+        while (CheckIsEmpty(CheckAdjacent(rFromValue)).Count == 0);
+
+        int rToValue = CheckIsEmpty(CheckAdjacent(randomBlack[index]))[Random.Range(0, CheckIsEmpty(CheckAdjacent(randomBlack[index])).Count)];
+
+        print("This is random move: " + rFromValue + " - " + rToValue);
+        Move(rFromValue, rToValue);
+    }
+
+    private void JumpMove()
+    {
+        bool isNeedRandomMove = true;
+        int blackPieceNeedToPlace = 0;
+        bool justCreatedMill = false;
+        List<int> pieceToAvoid = new List<int>();
+        void CheckPiece(int a, int b, int c, bool isWhite)
+        {
+            int[] millSlots = { a, b, c };
+            if (!isWhite) //For black
+            {
+                int pieceInRow = 0;
+                int pieceNeedToPlace = 0;
+                bool skip = false;
+                bool hasWhiteInRow = false;
+                foreach (int i in millSlots) // day la khi co 2 black piece canh nhau
                 {
-                    foreach (int j in CheckAdjacent(i)) //Va ben canh no co slot trong
+                    if (!slots[i].isWhite && !slots[i].isEmpty) //If that piece is black, ++ to piece in row
                     {
-                        if (slots[j].isEmpty) //Thi di chuyen tu slot do sang slot trong
+                        pieceInRow++;
+                        pieceToAvoid.Add(i);
+                    }
+                    else if (slots[i].isWhite && !slots[i].isEmpty) //But if there is a white piece, don't need to do anything
+                    {
+                        skip = true;
+                        hasWhiteInRow = true;
+                    }
+                    else
+                    {
+                        pieceNeedToPlace = i;
+                        if (!hasWhiteInRow)
+                            blackPieceNeedToPlace = i;
+                    }
+                }
+
+                if (pieceInRow == 2 && !skip && Table.Instance.currentPlayer == Table.CurrentPlayer.Black && !Table.Instance.removingMove)
+                {
+                    string message = "";
+                    foreach (int i in millSlots)
+                    {
+                        message += i + " ";
+                    }
+                    print(message + ": 2 black pieces, need to place at " + pieceNeedToPlace);
+                    possibleMoves.Add(pieceNeedToPlace);
+                    justCreatedMill = true;
+                    isNeedRandomMove = false;
+                    message = "";
+                    foreach (int i in pieceToAvoid)
+                    {
+                        message += i + ", ";
+                    }
+                    print("Here are avoiding pieces for last 3 pieces: " + message);
+                    print("So move from: " + CheckLastBlack() + " to " + pieceNeedToPlace);
+                    Move(CheckLastBlack(), pieceNeedToPlace);
+                }
+                else
+                {
+                    foreach (int i in millSlots) // day la khi co 2 black piece canh nhau
+                    {
+                        if (!slots[i].isWhite && !slots[i].isEmpty) //If that piece is black, remove it from the list
                         {
-                            Move(i, j);
+                            pieceToAvoid.Remove(i);
                         }
                     }
                 }
             }
+            else if (isWhite && !justCreatedMill)
+            {
+                int pieceInRow = 0;
+                int pieceNeedToPlace = 0;
+                bool skip = false;
+                foreach (int i in millSlots)
+                {
+                    if (slots[i].isWhite && !slots[i].isEmpty) //If that piece is white, ++ to piece in row
+                    {
+                        pieceInRow++;
+                        pieceToAvoid.Add(i);
+                    }
+                    else if (!slots[i].isWhite && !slots[i].isEmpty) //But if there is a black piece, don't need to do anything
+                    {
+                        skip = true;
+                    }
+                    else
+                    {
+                        pieceNeedToPlace = i;
+                    }
+
+                }
+                if (pieceInRow == 2 && !skip && Table.Instance.currentPlayer == Table.CurrentPlayer.Black && !Table.Instance.removingMove)
+                {
+                    string message = "";
+                    foreach (int i in millSlots)
+                    {
+                        message += i + " ";
+                    }
+                    print(message + ": 2 white pieces, need to place at " + pieceNeedToPlace);
+                    possibleMoves.Add(pieceNeedToPlace);
+                    isNeedRandomMove = false;
+                    message = "";
+                    foreach (int i in pieceToAvoid)
+                    {
+                        message += i + ", ";
+                    }
+                    print("Here are avoiding pieces for last 3 pieces: " + message);
+                    print("So move from: " + CheckLastBlack() + " to " + pieceNeedToPlace);
+                    Move(CheckLastBlack(), pieceNeedToPlace);
+                }
+                else
+                {
+                    foreach (int i in millSlots) // day la khi co 2 black piece canh nhau
+                    {
+                        if (!slots[i].isWhite && !slots[i].isEmpty) //If that piece is black, remove it from the list
+                        {
+                            pieceToAvoid.Remove(i);
+                        }
+                    }
+                }
+            }
+
+        }
+
+        int CheckLastBlack() //Cho nay de check black piece cuoi cung
+        {
+            for (int i = 0; i < 24; i++)
+            {
+                bool isDuplicate = false;
+                foreach (int j in pieceToAvoid)
+                {
+                    if (i == j)
+                    {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+
+                if (!slots[i].isWhite && !slots[i].isEmpty && !isDuplicate)
+                {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        for (int i = 0; i < 24; i++) //Chay het 24 o de xem o nao` co possible mill, uu tien tao Mill cho Black
+        {
+            switch (i)
+            {
+                case 0:
+                    CheckPiece(0, 1, 2, false); //Tai day se ta ve mot array neu no tao thanh mot Mill
+                    CheckPiece(0, 9, 21, false);
+                    break;
+                case 1:
+                    CheckPiece(1, 0, 2, false);
+                    CheckPiece(1, 4, 7, false);
+                    break;
+                case 2:
+                    CheckPiece(2, 0, 1, false);
+                    CheckPiece(2, 14, 23, false);
+                    break;
+                case 3:
+                    CheckPiece(3, 4, 5, false);
+                    CheckPiece(3, 10, 18, false);
+                    break;
+                case 4:
+                    CheckPiece(4, 3, 5, false);
+                    CheckPiece(4, 1, 7, false);
+                    break;
+                case 5:
+                    CheckPiece(5, 4, 3, false);
+                    CheckPiece(5, 13, 20, false);
+                    break;
+                case 6:
+                    CheckPiece(6, 7, 8, false);
+                    CheckPiece(6, 11, 15, false);
+                    break;
+                case 7:
+                    CheckPiece(7, 6, 8, false);
+                    CheckPiece(7, 4, 1, false);
+                    break;
+                case 8:
+                    CheckPiece(8, 7, 6, false);
+                    CheckPiece(8, 12, 17, false);
+                    break;
+                case 9:
+                    CheckPiece(9, 10, 11, false);
+                    CheckPiece(9, 0, 21, false);
+                    break;
+                case 10:
+                    CheckPiece(10, 9, 11, false);
+                    CheckPiece(10, 3, 18, false);
+                    break;
+                case 11:
+                    CheckPiece(11, 10, 9, false);
+                    CheckPiece(11, 6, 15, false);
+                    break;
+                case 12:
+                    CheckPiece(12, 13, 14, false);
+                    CheckPiece(12, 8, 17, false);
+                    break;
+                case 13:
+                    CheckPiece(13, 12, 14, false);
+                    CheckPiece(13, 5, 20, false);
+                    break;
+                case 14:
+                    CheckPiece(14, 13, 12, false);
+                    CheckPiece(14, 2, 23, false);
+                    break;
+                case 15:
+                    CheckPiece(15, 16, 17, false);
+                    CheckPiece(15, 11, 6, false);
+                    break;
+                case 16:
+                    CheckPiece(16, 15, 17, false);
+                    CheckPiece(16, 19, 22, false);
+                    break;
+                case 17:
+                    CheckPiece(17, 16, 15, false);
+                    CheckPiece(17, 12, 8, false);
+                    break;
+                case 18:
+                    CheckPiece(18, 19, 20, false);
+                    CheckPiece(18, 3, 10, false);
+                    break;
+                case 19:
+                    CheckPiece(19, 18, 20, false);
+                    CheckPiece(19, 16, 22, false);
+                    break;
+                case 20:
+                    CheckPiece(20, 19, 18, false);
+                    CheckPiece(20, 13, 5, false);
+                    break;
+                case 21:
+                    CheckPiece(21, 22, 23, false);
+                    CheckPiece(21, 9, 0, false);
+                    break;
+                case 22:
+                    CheckPiece(22, 21, 23, false);
+                    CheckPiece(22, 19, 16, false);
+                    break;
+                case 23:
+                    CheckPiece(23, 22, 21, false);
+                    CheckPiece(23, 14, 2, false);
+                    break;
+                default:
+                    break;
+            }
+        } //Chay het 24 o de xem o nao` co possible mill, uu tien tao Mill cho Black
+
+        for (int i = 0; i < 24; i++) //Chay het 24 o de xem o nao` co possible mill, sau do den Block Mill cua White
+        {
+            switch (i)
+            {
+                case 0:
+                    CheckPiece(0, 1, 2, true); //Tai day se ta ve mot array neu no tao thanh mot Mill
+                    CheckPiece(0, 9, 21, true);
+                    break;
+                case 1:
+                    CheckPiece(1, 0, 2, true);
+                    CheckPiece(1, 4, 7, true);
+                    break;
+                case 2:
+                    CheckPiece(2, 0, 1, true);
+                    CheckPiece(2, 14, 23, true);
+                    break;
+                case 3:
+                    CheckPiece(3, 4, 5, true);
+                    CheckPiece(3, 10, 18, true);
+                    break;
+                case 4:
+                    CheckPiece(4, 3, 5, true);
+                    CheckPiece(4, 1, 7, true);
+                    break;
+                case 5:
+                    CheckPiece(5, 4, 3, true);
+                    CheckPiece(5, 13, 20, true);
+                    break;
+                case 6:
+                    CheckPiece(6, 7, 8, true);
+                    CheckPiece(6, 11, 15, true);
+                    break;
+                case 7:
+                    CheckPiece(7, 6, 8, true);
+                    CheckPiece(7, 4, 1, true);
+                    break;
+                case 8:
+                    CheckPiece(8, 7, 6, true);
+                    CheckPiece(8, 12, 17, true);
+                    break;
+                case 9:
+                    CheckPiece(9, 10, 11, true);
+                    CheckPiece(9, 0, 21, true);
+                    break;
+                case 10:
+                    CheckPiece(10, 9, 11, true);
+                    CheckPiece(10, 3, 18, true);
+                    break;
+                case 11:
+                    CheckPiece(11, 10, 9, true);
+                    CheckPiece(11, 6, 15, true);
+                    break;
+                case 12:
+                    CheckPiece(12, 13, 14, true);
+                    CheckPiece(12, 8, 17, true);
+                    break;
+                case 13:
+                    CheckPiece(13, 12, 14, true);
+                    CheckPiece(13, 5, 20, true);
+                    break;
+                case 14:
+                    CheckPiece(14, 13, 12, true);
+                    CheckPiece(14, 2, 23, true);
+                    break;
+                case 15:
+                    CheckPiece(15, 16, 17, true);
+                    CheckPiece(15, 11, 6, true);
+                    break;
+                case 16:
+                    CheckPiece(16, 15, 17, true);
+                    CheckPiece(16, 19, 22, true);
+                    break;
+                case 17:
+                    CheckPiece(17, 16, 15, true);
+                    CheckPiece(17, 12, 8, true);
+                    break;
+                case 18:
+                    CheckPiece(18, 19, 20, true);
+                    CheckPiece(18, 3, 10, true);
+                    break;
+                case 19:
+                    CheckPiece(19, 18, 20, true);
+                    CheckPiece(19, 16, 22, true);
+                    break;
+                case 20:
+                    CheckPiece(20, 19, 18, true);
+                    CheckPiece(20, 13, 5, true);
+                    break;
+                case 21:
+                    CheckPiece(21, 22, 23, true);
+                    CheckPiece(21, 9, 0, true);
+                    break;
+                case 22:
+                    CheckPiece(22, 21, 23, true);
+                    CheckPiece(22, 19, 16, true);
+                    break;
+                case 23:
+                    CheckPiece(23, 22, 21, true);
+                    CheckPiece(23, 14, 2, true);
+                    break;
+                default:
+                    break;
+            }
+        } //Chay het 24 o de xem o nao` co possible mill, sau do den Block Mill cua White
+
+
+        if (isNeedRandomMove && !Table.Instance.removingMove) //Neu nhu khong co 2 chesspiece nao` tao thanh 1 mill, place randomly
+        {
+            possibleMoves.Add(blackPieceNeedToPlace);
+            string message = "";
+            foreach (int i in possibleMoves)
+            {
+                message += i + ", ";
+            }
+            print("Here are possible moves for last 3 pieces: " + message);
+            message = "";
+            foreach (int i in pieceToAvoid)
+            {
+                message += i + ", ";
+            }
+            print("Here are avoiding pieces for last 3 pieces: " + message);
+            int index = Random.Range(0, possibleMoves.Count);
+            do
+            {
+                index = Random.Range(0, possibleMoves.Count);
+            }
+            while (CheckLastBlack() == possibleMoves[index]);
+
+            print("So move from: " + CheckLastBlack() + " to " + possibleMoves[index]);
+            Move(CheckLastBlack(), possibleMoves[index]);
+            possibleMoves.Clear();
         }
     }
 }
