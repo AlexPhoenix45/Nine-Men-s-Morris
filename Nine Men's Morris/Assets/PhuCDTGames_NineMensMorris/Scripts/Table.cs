@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using DG.Tweening;
 public class Table : MonoBehaviour
 {
     public static Table Instance;
@@ -27,8 +27,18 @@ public class Table : MonoBehaviour
     //This part is for removing a chesspiece
     public bool removingMove = false;
 
-    //Thí part is for bot
+    //This part is for bot
     public bool isBotPlaying;
+
+    //This part is for moving chesspiece animation
+    public GameObject whitePiece;
+    public GameObject blackPiece;
+
+    //This part is for placing animation
+    public GameObject whiteSlots;
+    public GameObject blackSlots;
+
+    public bool pending = false;
 
     private void Start() //Set slot value for each empty slot
     {
@@ -112,15 +122,101 @@ public class Table : MonoBehaviour
 
     private void PlaceChesspiece(int slotValue)
     {
+        void ShowPossibleRemovingPiece(bool isShowWhite)
+        {
+            bool IfEveryPieceIsMilled(bool isWhite)
+            {
+                if (isWhite) //Chesspiece mau Trang
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isEmpty)
+                        {
+                            if (slots[i].isWhite && !slots[i].isMilled)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+                else //Chesspiece mau den
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isEmpty)
+                        {
+                            if (!slots[i].isWhite && !slots[i].isMilled)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+
+            print("show flare");
+            if (isShowWhite)
+            {
+                if (IfEveryPieceIsMilled(true))
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (slots[i].isWhite && !slots[i].isEmpty)
+                        {
+                            slots[i].setPiece("AddFlare");
+                        }
+                    }
+                }
+                else if (!IfEveryPieceIsMilled(true))
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (slots[i].isWhite && !slots[i].isMilled && !slots[i].isEmpty)
+                        {
+                            slots[i].setPiece("AddFlare");
+                        }
+                    }
+                }
+            }
+            else if (!isShowWhite)
+            {
+                if (IfEveryPieceIsMilled(false))
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isWhite && !slots[i].isEmpty)
+                        {
+                            slots[i].setPiece("AddFlare");
+                        }
+                    }
+                }
+                else if (!IfEveryPieceIsMilled(false))
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isWhite && !slots[i].isMilled && !slots[i].isEmpty)
+                        {
+                            slots[i].setPiece("AddFlare");
+                        }
+                    }
+                }
+            }
+        }
+
         if (currentPlayer == CurrentPlayer.White) //Neu nhu nguoi choi hien tai la trang thi dat chesspiece trang vao slot do
         {
-            slots[slotValue].setPiece("White");
+            //slots[slotValue].setPiece("White");
+            PosPlace(slots[slotValue].transform.position, slotValue, true);
             whitePlayer.ChangePieceAmount("pieceSleep", -1);
             whitePlayer.ChangePieceAmount("pieceLive", +1);
             CheckRemainingMill(slotValue, true); //Tai day check xem da co nhung Mill nao`
             if (CheckNewMillCreated(slotValue, true) == "True, White") //Tai day check xem lieu chesspiece vua dat xuong co tao thanh Mill nao` khong
             {
                 print("White can remove a chess piece from Black");
+                ShowPossibleRemovingPiece(false);
+                SetMarkerForEmptySlots(false);
                 removingMove = true;
             }
             else
@@ -130,15 +226,21 @@ public class Table : MonoBehaviour
         }
         else if (currentPlayer == CurrentPlayer.Black) //Neu nhu nguoi choi hien tai la den thi dat chesspiece den vao slot do
         {
-            slots[slotValue].setPiece("Black");
+            //slots[slotValue].setPiece("Black");
+            PosPlace(slots[slotValue].transform.position, slotValue, false);
             blackPlayer.ChangePieceAmount("pieceSleep", -1);
             blackPlayer.ChangePieceAmount("pieceLive", +1);
             CheckRemainingMill(slotValue, false); //Tai day check xem da co nhung Mill nao`
             if (CheckNewMillCreated(slotValue, false) == "True, Black") //Tai day check xem lieu chesspiece vua dat xuong co tao thanh Mill nao` khong
             {
                 print("Black can remove a chess piece from White");
+                ShowPossibleRemovingPiece(true);
+                SetMarkerForEmptySlots(false);
                 removingMove = true;
-                Bot.Instance.CallBot();
+                if (isBotPlaying)
+                {
+                    CallBotDelay();
+                }
             }
             else
             {
@@ -158,6 +260,7 @@ public class Table : MonoBehaviour
                     if (slots[value].isEmpty)
                     {
                         slots[value].setPiece("Marker"); //Hien ra nhung o con trong ben canh o cua nguoi choi 
+                        slots[slotValue].setPiece("AddFlare");
                         adjacentSlots.Add(value);
                         lastestSlot = slotValue;
                         selectToMove = true;
@@ -172,6 +275,7 @@ public class Table : MonoBehaviour
                     if (slots[value].isEmpty)
                     {
                         slots[value].setPiece("Marker"); //Hien ra nhung o con trong ben canh o cua nguoi choi 
+                        slots[slotValue].setPiece("AddFlare");
                         emptySlots.Add(value);
                         lastestSlot = slotValue;
                         selectToMove = true;
@@ -193,6 +297,7 @@ public class Table : MonoBehaviour
                     if (slots[value].isEmpty)
                     {
                         slots[value].setPiece("Marker"); //Hien ra nhung o con trong ben canh o cua nguoi choi 
+                        slots[slotValue].setPiece("AddFlare");
                         adjacentSlots.Add(value);
                         lastestSlot = slotValue;
                         selectToMove = true;
@@ -207,6 +312,7 @@ public class Table : MonoBehaviour
                     if (slots[value].isEmpty)
                     {
                         slots[value].setPiece("Marker"); //Hien ra nhung o con trong ben canh o cua nguoi choi 
+                        slots[slotValue].setPiece("AddFlare");
                         emptySlots.Add(value);
                         lastestSlot = slotValue;
                         selectToMove = true;
@@ -224,6 +330,90 @@ public class Table : MonoBehaviour
 
     private void MoveChesspiece(int fromValue, int toValue, List<int> adjacentSlots)
     {
+        void ShowPossibleRemovingPiece(bool isShowWhite)
+        {
+            bool IfEveryPieceIsMilled(bool isWhite)
+            {
+                if (isWhite) //Chesspiece mau Trang
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isEmpty)
+                        {
+                            if (slots[i].isWhite && !slots[i].isMilled)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+                else //Chesspiece mau den
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isEmpty)
+                        {
+                            if (!slots[i].isWhite && !slots[i].isMilled)
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+
+            print("show flare");
+            if (isShowWhite)
+            {
+                if (IfEveryPieceIsMilled(true))
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (slots[i].isWhite && !slots[i].isEmpty)
+                        {
+                            slots[i].setPiece("AddFlare");
+                        }
+                    }
+                }
+                else if (!IfEveryPieceIsMilled(true))
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (slots[i].isWhite && !slots[i].isMilled && !slots[i].isEmpty)
+                        {
+                            slots[i].setPiece("AddFlare");
+                        }
+                    }
+                }
+            }
+            else if (!isShowWhite)
+            {
+                if (IfEveryPieceIsMilled(false))
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isWhite && !slots[i].isEmpty)
+                        {
+                            slots[i].setPiece("AddFlare");
+                        }
+                    }
+                }
+                else if (!IfEveryPieceIsMilled(false))
+                {
+                    for (int i = 0; i < 24; i++)
+                    {
+                        if (!slots[i].isWhite && !slots[i].isMilled && !slots[i].isEmpty)
+                        {
+                            slots[i].setPiece("AddFlare");
+                        }
+                    }
+                }
+            }
+        }
+
+        slots[fromValue].setPiece("RemoveFlare");
         foreach (int value in adjacentSlots)
         {
             slots[value].setPiece("Empty");
@@ -231,9 +421,10 @@ public class Table : MonoBehaviour
             {
                 if (currentPlayer == CurrentPlayer.White)
                 {
-                    slots[fromValue].setPiece("Empty");
-                    UnCheckMill(fromValue, true);  //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
-                    slots[toValue].setPiece("White");
+                    //slots[fromValue].setPiece("Empty");
+                    //UnCheckMill(fromValue, true);  //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    //slots[toValue].setPiece("White");
+                    PosMove(slots[fromValue].transform.position, slots[toValue].transform.position, true, fromValue, toValue);
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
                     {
@@ -246,6 +437,7 @@ public class Table : MonoBehaviour
                     if (CheckNewMillCreated(toValue, true) == "True, White") //Check xem chesspiece o vi tri moi co tao thanh Mill nao` khong
                     {
                         print("White can remove a chess piece from Black");
+                        ShowPossibleRemovingPiece(false);
                         removingMove = true;
                     }
                     else
@@ -255,9 +447,10 @@ public class Table : MonoBehaviour
                 }
                 else if (currentPlayer == CurrentPlayer.Black)
                 {
-                    slots[fromValue].setPiece("Empty");
-                    UnCheckMill(fromValue, false); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
-                    slots[toValue].setPiece("Black"); 
+                    //slots[fromValue].setPiece("Empty");
+                    //UnCheckMill(fromValue, false); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    //slots[toValue].setPiece("Black");
+                    PosMove(slots[fromValue].transform.position, slots[toValue].transform.position, false, fromValue, toValue);
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
                     {
@@ -269,8 +462,12 @@ public class Table : MonoBehaviour
                     if (CheckNewMillCreated(toValue, false) == "True, Black") //Check xem chesspiece o vi tri moi co tao thanh Mill nao` khong
                     {
                         print("Black can remove a chess piece from White");
+                        ShowPossibleRemovingPiece(true);
                         removingMove = true;
-                        Bot.Instance.CallBot();
+                        if (isBotPlaying)
+                        {
+                            CallBotDelay();
+                        }
                     }
                     else
                     {
@@ -290,7 +487,7 @@ public class Table : MonoBehaviour
             currentPlayer = CurrentPlayer.Black;
             if (isBotPlaying)
             {
-                Bot.Instance.CallBot();
+                CallBotDelay();
             }
         }
         else if (currentPlayer == CurrentPlayer.Black)
@@ -303,15 +500,13 @@ public class Table : MonoBehaviour
         CheckForWinning(currentPlayer);
         CheckIfSuffocated(currentPlayer);
 
-        if (ReturnCurrentPlayer(currentPlayer).pieceSleep == 0)
+        if (ReturnCurrentPlayer(currentPlayer).pieceSleep != 0)
         {
-            for (int i = 0; i < 24; i++)
-            {
-                if (slots[i].isEmpty)
-                {
-                    slots[i].setPiece("Empty");
-                }
-            }
+            SetMarkerForEmptySlots(true);
+        }
+        else
+        {
+            SetMarkerForEmptySlots(false);
         }
     }
 
@@ -1171,6 +1366,15 @@ public class Table : MonoBehaviour
             }
         }
 
+        void UnshownEverything()
+        {
+            for (int i = 0; i < 24; i++)
+            {
+                slots[i].setPiece("RemoveFlare");
+            }
+        }
+
+
         if (isWhite) //Day la luot cua White
         {
             if (!IfEveryPieceIsMilled(false)) //Neu nhu tat ca cac chesspiece cua doi thu deu Milled
@@ -1179,8 +1383,9 @@ public class Table : MonoBehaviour
                 {
                     blackPlayer.ChangePieceAmount("pieceDie", +1);
                     blackPlayer.ChangePieceAmount("pieceLive", -1);
-                    slots[slotValue].setPiece("Empty");
-                    UnCheckMill(slotValue, false); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    //slots[slotValue].setPiece("Empty");
+                    //UnCheckMill(slotValue, false); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    PosRemove(slots[slotValue].transform.position, slotValue, true);
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
                     {
@@ -1190,6 +1395,11 @@ public class Table : MonoBehaviour
                         }
                     }
                     removingMove = false;
+                    UnshownEverything();
+                    if (whitePlayer.pieceSleep != 0)
+                    {
+                        SetMarkerForEmptySlots(true);
+                    }
                     SwitchPlayer();
                 }
             }
@@ -1199,8 +1409,9 @@ public class Table : MonoBehaviour
                 {
                     blackPlayer.ChangePieceAmount("pieceDie", +1);
                     blackPlayer.ChangePieceAmount("pieceLive", -1);
-                    slots[slotValue].setPiece("Empty");
-                    UnCheckMill(slotValue, false); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    //slots[slotValue].setPiece("Empty");
+                    //UnCheckMill(slotValue, false); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    PosRemove(slots[slotValue].transform.position, slotValue, true);
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
                     {
@@ -1210,6 +1421,11 @@ public class Table : MonoBehaviour
                         }
                     }
                     removingMove = false;
+                    UnshownEverything();
+                    if (whitePlayer.pieceSleep != 0)
+                    {
+                        SetMarkerForEmptySlots(true);
+                    }
                     SwitchPlayer();
                 }
             }
@@ -1222,8 +1438,9 @@ public class Table : MonoBehaviour
                 {
                     whitePlayer.ChangePieceAmount("pieceDie", +1);
                     whitePlayer.ChangePieceAmount("pieceLive", -1);
-                    slots[slotValue].setPiece("Empty");
-                    UnCheckMill(slotValue, true); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    //slots[slotValue].setPiece("Empty");
+                    //UnCheckMill(slotValue, true); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    PosRemove(slots[slotValue].transform.position, slotValue, false);
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
                     {
@@ -1233,6 +1450,11 @@ public class Table : MonoBehaviour
                         }
                     }
                     removingMove = false;
+                    UnshownEverything();
+                    if (blackPlayer.pieceSleep != 0)
+                    {
+                        SetMarkerForEmptySlots(true);
+                    }
                     SwitchPlayer();
                 }
             }
@@ -1242,8 +1464,9 @@ public class Table : MonoBehaviour
                 {
                     whitePlayer.ChangePieceAmount("pieceDie", +1);
                     whitePlayer.ChangePieceAmount("pieceLive", -1);
-                    slots[slotValue].setPiece("Empty");
-                    UnCheckMill(slotValue, true); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    //slots[slotValue].setPiece("Empty");
+                    //UnCheckMill(slotValue, true); //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
+                    PosRemove(slots[slotValue].transform.position, slotValue, false);
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
                     {
@@ -1253,6 +1476,11 @@ public class Table : MonoBehaviour
                         }
                     }
                     removingMove = false;
+                    UnshownEverything();
+                    if (blackPlayer.pieceSleep != 0)
+                    {
+                        SetMarkerForEmptySlots(true);
+                    }
                     SwitchPlayer();
                 }
             }
@@ -1551,5 +1779,158 @@ public class Table : MonoBehaviour
                 UIController.Instance.SetEndgameText("WHITE WINS!");
             }
         }
+    }
+
+    private void PosMove(Vector2 fromPos, Vector2 toPos, bool isWhite, int fromIndex, int toIndex)
+    {
+        IEnumerator LerpMove(bool white)
+        {
+            if (white)
+            {
+                slots[fromIndex].setPiece("Empty");
+                slots[toIndex].setPiece("White");
+
+
+                whitePiece.SetActive(true);
+                whitePiece.transform.position = fromPos;
+                whitePiece.transform.DOMove(toPos, .5f);
+                UnCheckMill(fromIndex, true);
+                slots[toIndex].setPiece("HideUI");
+                pending = true;
+                yield return new WaitForSeconds(.5f);
+                pending = false;
+                slots[toIndex].setPiece("ShowUI");
+                whitePiece.SetActive(false);
+            }
+            else
+            {
+                slots[fromIndex].setPiece("Empty");
+                slots[toIndex].setPiece("Black");
+
+
+                blackPiece.SetActive(true);
+                blackPiece.transform.position = fromPos;
+                blackPiece.transform.DOMove(toPos, .5f);
+                UnCheckMill(fromIndex, false);
+                slots[toIndex].setPiece("HideUI");
+                pending = true;
+                yield return new WaitForSeconds(.5f);
+                pending = false;
+                slots[toIndex].setPiece("ShowUI");
+                blackPiece.SetActive(false);
+            }
+        }
+
+        StartCoroutine(LerpMove(isWhite));
+    }
+
+    private void PosPlace(Vector2 toPos, int toIndex, bool isWhite)
+    {
+        IEnumerator LerpMove(bool white)
+        {
+            if (white)
+            {
+                slots[toIndex].setPiece("White");
+
+                Vector2 fromPos = whiteSlots.transform.position;
+                whitePiece.SetActive(true);
+                whitePiece.transform.position = fromPos;
+                whitePiece.transform.DOMove(toPos, .5f);
+                slots[toIndex].setPiece("HideUI");
+                pending = true;
+                yield return new WaitForSeconds(.5f);
+                pending = false;
+                slots[toIndex].setPiece("ShowUI");
+                whitePiece.SetActive(false);
+            }
+            else
+            {
+                slots[toIndex].setPiece("Black");
+
+                Vector2 fromPos = blackSlots.transform.position;
+                blackPiece.SetActive(true);
+                blackPiece.transform.position = fromPos;
+                blackPiece.transform.DOMove(toPos, .5f);
+                slots[toIndex].setPiece("HideUI");
+                pending = true;
+                yield return new WaitForSeconds(.5f);
+                pending = false;
+                slots[toIndex].setPiece("ShowUI");
+                blackPiece.SetActive(false);
+            }
+        }
+
+        StartCoroutine(LerpMove(isWhite));
+    }
+
+    private void PosRemove(Vector2 fromPos, int fromIndex, bool isWhite)
+    {
+        IEnumerator LerpMove(bool white)
+        {
+            if (!white)
+            {
+                slots[fromIndex].setPiece("Empty");
+
+                Vector2 toPos = new Vector2(3, 3);
+                whitePiece.SetActive(true);
+                whitePiece.transform.position = fromPos;
+                whitePiece.transform.DOMove(toPos, .5f);
+                UnCheckMill(fromIndex, false);
+                slots[fromIndex].setPiece("HideUI");
+                pending = true;
+                yield return new WaitForSeconds(.5f);
+                pending = false;
+                slots[fromIndex].setPiece("ShowUI");
+                whitePiece.SetActive(false);
+            }
+            else
+            {
+                slots[fromIndex].setPiece("Empty");
+
+                Vector2 toPos = new Vector2(-3, -3);
+                blackPiece.SetActive(true);
+                blackPiece.transform.position = fromPos;
+                blackPiece.transform.DOMove(toPos, .5f);
+                UnCheckMill(fromIndex, true);
+                slots[fromIndex].setPiece("HideUI");
+                pending = true;
+                yield return new WaitForSeconds(.5f);
+                pending = false;
+                slots[fromIndex].setPiece("ShowUI");
+                blackPiece.SetActive(false);
+            }
+        }
+
+        StartCoroutine(LerpMove(isWhite));
+    }
+
+    private void SetMarkerForEmptySlots(bool turnOn)
+    {
+        for (int i = 0; i < 24; i++)
+        {
+            if (slots[i].isEmpty)
+            {
+                if (turnOn)
+                {
+                    slots[i].setPiece("Marker");
+                }
+                else
+                {
+                    slots[i].setPiece("Empty");
+                }
+            }
+        }
+    }
+
+    private void CallBotDelay()
+    {
+        IEnumerator DelayCall()
+        {
+            yield return new WaitForSeconds(1);
+            Bot.Instance.CallBot();
+        }
+
+        StartCoroutine(DelayCall());
+
     }
 }
