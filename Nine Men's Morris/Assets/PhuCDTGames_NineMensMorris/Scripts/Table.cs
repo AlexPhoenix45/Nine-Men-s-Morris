@@ -40,6 +40,10 @@ public class Table : MonoBehaviour
 
     public bool pending = false;
 
+    //This part is for Undo mode
+    public List<Slots> aiMoves = new List<Slots>();
+    public List<Slots> humanMoves = new List<Slots>();
+
     private void Start() //Set slot value for each empty slot
     {
         int slotValue = 0;
@@ -60,6 +64,7 @@ public class Table : MonoBehaviour
     
     public IEnumerator Evaluate(int slotValue)
     {
+        MoveTracer(slots[slotValue]);
         yield return new WaitForSeconds(0.2f);
         if (selectToMove)
         {
@@ -1974,5 +1979,31 @@ public class Table : MonoBehaviour
 
         StartCoroutine(DelayCall());
 
+    }
+
+    private void MoveTracer(Slots slot) //White as Player or Player 1, Black as Bot or Player 2
+    {
+        if (currentPlayer == CurrentPlayer.White)
+        {
+            humanMoves.Add(slot);
+        }
+        else
+        {
+            aiMoves.Add(slot);
+        }
+
+        //Print the moves of 2 players
+        string message = "";
+        foreach (Slots item in humanMoves)
+        {
+            message += item.slotValue + " ";
+        }
+        print("Human moves: " + message);
+        message = "";
+        foreach (Slots item in aiMoves)
+        {
+            message += item.slotValue + " ";
+        }
+        print("AI moves: " + message);
     }
 }

@@ -157,7 +157,7 @@ public class Slots : MonoBehaviour
         {
             if (!Table.Instance.pending && Table.Instance.currentPlayer == Table.CurrentPlayer.White)
             {
-                print("Player choose: " + slotValue);
+                //print("Player choose: " + slotValue);
                 StartCoroutine(Table.Instance.Evaluate(slotValue));
             }
 
@@ -166,7 +166,7 @@ public class Slots : MonoBehaviour
         {
             if (!Table.Instance.pending)
             {
-                print("Player choose: " + slotValue);
+                //print("Player choose: " + slotValue);
                 StartCoroutine(Table.Instance.Evaluate(slotValue));
 
             }

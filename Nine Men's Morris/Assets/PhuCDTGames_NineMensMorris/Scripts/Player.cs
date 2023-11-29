@@ -43,4 +43,16 @@ public class Player : MonoBehaviour
     {
         indicator.SetActive(value);
     }
+
+    public void Reset()
+    {
+        pieceSleep = 9;
+        pieceLive = 0;
+        pieceDie = 0;
+        currentSleepingIndex = 8;
+        for (int i = 0; i < 9; i++)
+        {
+            sleepingPiece[i].gameObject.SetActive(true);
+        }
+    }
 }

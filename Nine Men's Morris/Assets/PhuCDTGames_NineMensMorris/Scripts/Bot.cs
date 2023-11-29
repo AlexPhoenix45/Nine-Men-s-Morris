@@ -25,7 +25,7 @@ public class Bot : MonoBehaviour
 
     public void CallBot()
     {
-        print("has call");
+        //print("has call");
         if (Table.Instance.currentPlayer == Table.CurrentPlayer.Black)
         {
             slots = Table.Instance.slots;
@@ -594,9 +594,9 @@ public class Bot : MonoBehaviour
         {
             message += move + ", ";
         }
-        print("All possible moves: " + message);
+        //print("All possible moves: " + message);
         int nextMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
-        print("Bot choose: " + nextMove);
+        //print("Bot choose: " + nextMove);
         StartCoroutine(Table.Instance.Evaluate(nextMove));
         possibleMoves.Clear();
     }

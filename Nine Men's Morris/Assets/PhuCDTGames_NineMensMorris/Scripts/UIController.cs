@@ -43,7 +43,24 @@ public class UIController : MonoBehaviour
     public void OnClick_Restart()
     {
         endgamePanel.SetActive(false);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
+        foreach (Slots slot in Table.Instance.slots)
+        {
+            slot.setPiece("Empty");
+            slot.setPiece("Marker");
+        }
 
+        for (int i = 0; i < 16; i++)
+        {
+            Table.Instance.grids[i].SetActive(false);
+        }
+
+        Table.Instance.blackPlayer.Reset();
+        Table.Instance.whitePlayer.Reset();
+
+        Table.Instance.whitePlayer.MyTurn(true);
+        Table.Instance.blackPlayer.MyTurn(false);
+
+        Table.Instance.aiMoves.Clear();
+        Table.Instance.humanMoves.Clear();
+    }
 }
