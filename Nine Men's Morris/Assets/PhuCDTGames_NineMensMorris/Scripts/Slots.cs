@@ -4,6 +4,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEditor;
 
+[System.Serializable]
 public class Slots : MonoBehaviour
 {
     public bool isEmpty = true;

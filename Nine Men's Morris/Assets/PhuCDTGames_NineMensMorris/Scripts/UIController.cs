@@ -59,8 +59,5 @@ public class UIController : MonoBehaviour
 
         Table.Instance.whitePlayer.MyTurn(true);
         Table.Instance.blackPlayer.MyTurn(false);
-
-        Table.Instance.aiMoves.Clear();
-        Table.Instance.humanMoves.Clear();
     }
 }

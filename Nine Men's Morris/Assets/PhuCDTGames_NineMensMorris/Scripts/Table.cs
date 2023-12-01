@@ -5,6 +5,7 @@ using DG.Tweening;
 public class Table : MonoBehaviour
 {
     public static Table Instance;
+    public BoardState boardState;
     public enum CurrentPlayer
     { 
         White,
@@ -39,10 +40,6 @@ public class Table : MonoBehaviour
     public GameObject blackSlots;
 
     public bool pending = false;
-
-    //This part is for Undo mode
-    public List<int> aiMoves = new List<int>();
-    public List<int> humanMoves = new List<int>();
 
     private void Start() //Set slot value for each empty slot
     {
@@ -84,12 +81,10 @@ public class Table : MonoBehaviour
         {
             if (currentPlayer == CurrentPlayer.White)
             {
-                MoveTracer(slotValue);
                 RemovingChesspiece(slotValue, true);
             }
             else
             {
-                MoveTracer(slotValue);
                 RemovingChesspiece(slotValue, false);
             }
         }
@@ -99,7 +94,6 @@ public class Table : MonoBehaviour
             //Check xem slot do con trong hay khong, neu co thi dat chesspiece vao do, dieu kien la chua dat het 9 chesspiece
             if (CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep != 0)
             {
-                MoveTracer(slotValue);
                 PlaceChesspiece(slotValue); //Khi player da dat du so chesspiece cua minh thi se khong chay vao day nua
             }
             else if (!CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep == 0 && ReturnCurrentPlayer(currentPlayer).pieceLive > 3) //Phai dat het 9 chesspiece moi duoc di chuyen nhung chesspiece tren table
@@ -113,6 +107,7 @@ public class Table : MonoBehaviour
                 //Jump Move
             }
         }
+        boardState.SaveBoardData(slots);
     }
     private bool CheckIfSlotIsEmpty(int slotValue)
     {
@@ -434,8 +429,6 @@ public class Table : MonoBehaviour
                     //UnCheckMill(fromValue, true);  //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
                     //slots[toValue].setPiece("White");
                     PosMove(slots[fromValue].transform.position, slots[toValue].transform.position, true, fromValue, toValue); //Moving Animation
-                    MoveTracer(fromValue);
-                    MoveTracer(toValue);
 
                     AudioController.Instance.PlayChessMoved(); //Placing Audio
 
@@ -465,8 +458,6 @@ public class Table : MonoBehaviour
                     //slots[toValue].setPiece("Black");
                     PosMove(slots[fromValue].transform.position, slots[toValue].transform.position, false, fromValue, toValue); //Moving Animation
                     AudioController.Instance.PlayChessMoved(); //Placing Audio
-                    MoveTracer(fromValue);
-                    MoveTracer(toValue);
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
                     {
@@ -1988,75 +1979,20 @@ public class Table : MonoBehaviour
 
     }
 
-    private void MoveTracer(int slotValue) //White as Player or Player 1, Black as Bot or Player 2
+    public void RefreshBoardState(Slots[] saveSlots, bool isWhiteTurn)
     {
-        if (whitePlayer.pieceSleep > 0 && blackPlayer.pieceSleep > 0)
+        for (int i = 0; i < 24; i++)
         {
-            if (!removingMove)
-            {
-                if (currentPlayer == CurrentPlayer.White)
-                {
-                    humanMoves.Add(slotValue);
-                }
-                else
-                {
-                    aiMoves.Add(slotValue);
-                }
-            }
-            else
-            {
-                if (currentPlayer == CurrentPlayer.White)
-                {
-                    humanMoves.Add(slotValue + 100);
-                    aiMoves.Add(-1000);
-                }
-                else
-                {
-                    aiMoves.Add(slotValue + 100);
-                    humanMoves.Add(-1000);
-                }
-            }
+            //slots[i].setPiece(saveSlots[i].state);
+            print(saveSlots[i].state);
+        }
+        if (isWhiteTurn)
+        {
+            currentPlayer = CurrentPlayer.White;
         }
         else
         {
-            if (!removingMove)
-            {
-                if (currentPlayer == CurrentPlayer.White)
-                {
-                    humanMoves.Add(-slotValue);
-                }
-                else
-                {
-                    aiMoves.Add(-slotValue);
-                }
-            }
-            else
-            {
-                if (currentPlayer == CurrentPlayer.White)
-                {
-                    humanMoves.Add(-slotValue - 100);
-                    aiMoves.Add(-1000);
-                }
-                else
-                {
-                    aiMoves.Add(-slotValue - 100);
-                    humanMoves.Add(-1000);
-                }
-            }
+            currentPlayer = CurrentPlayer.Black;
         }
-
-        //Print the moves of 2 players
-        string message = "";
-        foreach (int item in humanMoves)
-        {
-            message += item + " ";
-        }
-        print("Human moves: " + message);
-        message = "";
-        foreach (int item in aiMoves)
-        {
-            message += item + " ";
-        }
-        print("AI moves: " + message);
     }
 }
