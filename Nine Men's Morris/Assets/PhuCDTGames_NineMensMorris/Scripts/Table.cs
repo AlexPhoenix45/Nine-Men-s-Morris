@@ -41,8 +41,8 @@ public class Table : MonoBehaviour
     public bool pending = false;
 
     //This part is for Undo mode
-    public List<Slots> aiMoves = new List<Slots>();
-    public List<Slots> humanMoves = new List<Slots>();
+    public List<int> aiMoves = new List<int>();
+    public List<int> humanMoves = new List<int>();
 
     private void Start() //Set slot value for each empty slot
     {
@@ -64,7 +64,6 @@ public class Table : MonoBehaviour
     
     public IEnumerator Evaluate(int slotValue)
     {
-        MoveTracer(slots[slotValue]);
         yield return new WaitForSeconds(0.2f);
         if (selectToMove)
         {
@@ -85,10 +84,12 @@ public class Table : MonoBehaviour
         {
             if (currentPlayer == CurrentPlayer.White)
             {
+                MoveTracer(slotValue);
                 RemovingChesspiece(slotValue, true);
             }
             else
             {
+                MoveTracer(slotValue);
                 RemovingChesspiece(slotValue, false);
             }
         }
@@ -98,6 +99,7 @@ public class Table : MonoBehaviour
             //Check xem slot do con trong hay khong, neu co thi dat chesspiece vao do, dieu kien la chua dat het 9 chesspiece
             if (CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep != 0)
             {
+                MoveTracer(slotValue);
                 PlaceChesspiece(slotValue); //Khi player da dat du so chesspiece cua minh thi se khong chay vao day nua
             }
             else if (!CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep == 0 && ReturnCurrentPlayer(currentPlayer).pieceLive > 3) //Phai dat het 9 chesspiece moi duoc di chuyen nhung chesspiece tren table
@@ -161,7 +163,7 @@ public class Table : MonoBehaviour
                 }
             }
 
-            print("show flare");
+            //print("show flare");
             if (isShowWhite)
             {
                 if (IfEveryPieceIsMilled(true))
@@ -220,7 +222,7 @@ public class Table : MonoBehaviour
             CheckRemainingMill(slotValue, true); //Tai day check xem da co nhung Mill nao`
             if (CheckNewMillCreated(slotValue, true) == "True, White") //Tai day check xem lieu chesspiece vua dat xuong co tao thanh Mill nao` khong
             {
-                print("White can remove a chess piece from Black");
+                //print("White can remove a chess piece from Black");
                 ShowPossibleRemovingPiece(false);
                 SetMarkerForEmptySlots(false);
                 removingMove = true;
@@ -240,7 +242,7 @@ public class Table : MonoBehaviour
             CheckRemainingMill(slotValue, false); //Tai day check xem da co nhung Mill nao`
             if (CheckNewMillCreated(slotValue, false) == "True, Black") //Tai day check xem lieu chesspiece vua dat xuong co tao thanh Mill nao` khong
             {
-                print("Black can remove a chess piece from White");
+                //print("Black can remove a chess piece from White");
                 ShowPossibleRemovingPiece(true);
                 SetMarkerForEmptySlots(false);
                 removingMove = true;
@@ -371,7 +373,7 @@ public class Table : MonoBehaviour
                 }
             }
 
-            print("show flare");
+            //print("show flare");
             if (isShowWhite)
             {
                 if (IfEveryPieceIsMilled(true))
@@ -432,6 +434,9 @@ public class Table : MonoBehaviour
                     //UnCheckMill(fromValue, true);  //Neu chesspiece o vi tri cu dang tao thanh` 1 Mill, thi` se bo Mill do di
                     //slots[toValue].setPiece("White");
                     PosMove(slots[fromValue].transform.position, slots[toValue].transform.position, true, fromValue, toValue); //Moving Animation
+                    MoveTracer(fromValue);
+                    MoveTracer(toValue);
+
                     AudioController.Instance.PlayChessMoved(); //Placing Audio
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
@@ -444,7 +449,7 @@ public class Table : MonoBehaviour
 
                     if (CheckNewMillCreated(toValue, true) == "True, White") //Check xem chesspiece o vi tri moi co tao thanh Mill nao` khong
                     {
-                        print("White can remove a chess piece from Black");
+                        //print("White can remove a chess piece from Black");
                         ShowPossibleRemovingPiece(false);
                         removingMove = true;
                     }
@@ -460,6 +465,8 @@ public class Table : MonoBehaviour
                     //slots[toValue].setPiece("Black");
                     PosMove(slots[fromValue].transform.position, slots[toValue].transform.position, false, fromValue, toValue); //Moving Animation
                     AudioController.Instance.PlayChessMoved(); //Placing Audio
+                    MoveTracer(fromValue);
+                    MoveTracer(toValue);
 
                     for (int i = 0; i < 24; i++) //Xet xem lieu trong 3 chesspiece o tren, co chesspiece nao` thuoc ` Mill khac khong
                     {
@@ -470,7 +477,7 @@ public class Table : MonoBehaviour
                     }
                     if (CheckNewMillCreated(toValue, false) == "True, Black") //Check xem chesspiece o vi tri moi co tao thanh Mill nao` khong
                     {
-                        print("Black can remove a chess piece from White");
+                        //print("Black can remove a chess piece from White");
                         ShowPossibleRemovingPiece(true);
                         removingMove = true;
                         if (isBotPlaying)
@@ -1514,7 +1521,7 @@ public class Table : MonoBehaviour
 
     private void SetGrid(bool value, int a, int b, int c)
     {
-        print("CALL SET GRID: " + a + "-" + b + "-" + c + value);
+        //print("CALL SET GRID: " + a + "-" + b + "-" + c + value);
         if ((a == 0 || a == 1 || a == 2) && a != b && a != c)
         {
             if ((b == 0 || b == 1 || b == 2) && b != a && b != c)
@@ -1642,7 +1649,7 @@ public class Table : MonoBehaviour
             {
                 if ((c == 2 || c == 14 || c == 23) && c != a && c != b)
                 {
-                    print(value);
+                    //print(value);
                     grids[11].SetActive(value);
                 }
             }
@@ -1981,28 +1988,74 @@ public class Table : MonoBehaviour
 
     }
 
-    private void MoveTracer(Slots slot) //White as Player or Player 1, Black as Bot or Player 2
+    private void MoveTracer(int slotValue) //White as Player or Player 1, Black as Bot or Player 2
     {
-        if (currentPlayer == CurrentPlayer.White)
+        if (whitePlayer.pieceSleep > 0 && blackPlayer.pieceSleep > 0)
         {
-            humanMoves.Add(slot);
+            if (!removingMove)
+            {
+                if (currentPlayer == CurrentPlayer.White)
+                {
+                    humanMoves.Add(slotValue);
+                }
+                else
+                {
+                    aiMoves.Add(slotValue);
+                }
+            }
+            else
+            {
+                if (currentPlayer == CurrentPlayer.White)
+                {
+                    humanMoves.Add(slotValue + 100);
+                    aiMoves.Add(-1000);
+                }
+                else
+                {
+                    aiMoves.Add(slotValue + 100);
+                    humanMoves.Add(-1000);
+                }
+            }
         }
         else
         {
-            aiMoves.Add(slot);
+            if (!removingMove)
+            {
+                if (currentPlayer == CurrentPlayer.White)
+                {
+                    humanMoves.Add(-slotValue);
+                }
+                else
+                {
+                    aiMoves.Add(-slotValue);
+                }
+            }
+            else
+            {
+                if (currentPlayer == CurrentPlayer.White)
+                {
+                    humanMoves.Add(-slotValue - 100);
+                    aiMoves.Add(-1000);
+                }
+                else
+                {
+                    aiMoves.Add(-slotValue - 100);
+                    humanMoves.Add(-1000);
+                }
+            }
         }
 
         //Print the moves of 2 players
         string message = "";
-        foreach (Slots item in humanMoves)
+        foreach (int item in humanMoves)
         {
-            message += item.slotValue + " ";
+            message += item + " ";
         }
         print("Human moves: " + message);
         message = "";
-        foreach (Slots item in aiMoves)
+        foreach (int item in aiMoves)
         {
-            message += item.slotValue + " ";
+            message += item + " ";
         }
         print("AI moves: " + message);
     }
