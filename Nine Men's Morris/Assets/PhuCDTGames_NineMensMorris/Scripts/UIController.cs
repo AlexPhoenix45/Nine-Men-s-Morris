@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class UIController : MonoBehaviour
     //Endgame Parameters
     public GameObject endgamePanel;
     public TextMeshProUGUI endgameText;
+
+    //Undo Parameter
+    public Button undoButton;
 
     private void Start()
     {
@@ -60,4 +64,30 @@ public class UIController : MonoBehaviour
         Table.Instance.whitePlayer.MyTurn(true);
         Table.Instance.blackPlayer.MyTurn(false);
     }
+
+    public void UpdateUndoButtonTurn(Table.CurrentPlayer currentPlayer)
+    {
+        if (Table.Instance.isBotPlaying)
+        {
+            if (currentPlayer == Table.CurrentPlayer.White)
+            {
+                undoButton.interactable = false;
+            }
+            else
+            {
+                undoButton.interactable = true;
+            }
+        }
+    }
+
+    public void OnClick_Undo()
+    {
+        if (Table.Instance.isBotPlaying)
+        {
+            print("Last Undo Move: " + BoardState.Instance.whiteMoves[BoardState.Instance.whiteMoves.Count - 1]);
+            //BoardState.Instance.LoadBoardData(BoardState.Instance.whiteMoves[BoardState.Instance.whiteMoves.Count - 1]);
+            //BoardState.Instance.whiteMoves.RemoveAt(BoardState.Instance.whiteMoves[BoardState.Instance.whiteMoves.Count - 1]);
+        }
+    }
+
 }

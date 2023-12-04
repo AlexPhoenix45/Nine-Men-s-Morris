@@ -31,4 +31,11 @@ to any empty slots)
 + If player down to 2 chesspiece, the 
 opposite player win
 
+------------------------------------------------------
+- Fix both player sleeping slots (it not update when changing sleeping piece number) (done)
+- Make it real
+
+copy all parameter from original slot to the others (done)
+
+copy table moves (jump moves, remove moves)
 

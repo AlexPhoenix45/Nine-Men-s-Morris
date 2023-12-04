@@ -61,6 +61,7 @@ public class Table : MonoBehaviour
     
     public IEnumerator Evaluate(int slotValue)
     {
+        UIController.Instance.UpdateUndoButtonTurn(currentPlayer);
         yield return new WaitForSeconds(0.2f);
         if (selectToMove)
         {
@@ -69,12 +70,14 @@ public class Table : MonoBehaviour
                 MoveChesspiece(lastestSlot, slotValue, adjacentSlots);
                 adjacentSlots.Clear();
                 selectToMove = false;
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
             else
             {
                 MoveChesspiece(lastestSlot, slotValue, emptySlots);
                 emptySlots.Clear();
                 selectToMove = false;
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
         }
         else if (removingMove)
@@ -82,10 +85,12 @@ public class Table : MonoBehaviour
             if (currentPlayer == CurrentPlayer.White)
             {
                 RemovingChesspiece(slotValue, true);
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
             else
             {
                 RemovingChesspiece(slotValue, false);
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
         }
         else
@@ -95,19 +100,21 @@ public class Table : MonoBehaviour
             if (CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep != 0)
             {
                 PlaceChesspiece(slotValue); //Khi player da dat du so chesspiece cua minh thi se khong chay vao day nua
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
             else if (!CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep == 0 && ReturnCurrentPlayer(currentPlayer).pieceLive > 3) //Phai dat het 9 chesspiece moi duoc di chuyen nhung chesspiece tren table
             {
                 //Neu slot do khong trong, xem player no an dung vao chesspiece cua minh hay khong, neu an dung thi hien ra nhung nuoc di co the di cua chesspiece do
                 CheckChesspieceAndShowAdjacent(slotValue, false);
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
             else if (!CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep == 0 && ReturnCurrentPlayer(currentPlayer).pieceLive == 3) //Khi con` lai 3 chesspiece, nguoi choi duoc thuc hien jump move
             {
                 CheckChesspieceAndShowAdjacent(slotValue, true);
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
                 //Jump Move
             }
         }
-        boardState.SaveBoardData(slots);
     }
     private bool CheckIfSlotIsEmpty(int slotValue)
     {

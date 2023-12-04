@@ -756,7 +756,7 @@ public class Bot : MonoBehaviour
         {
             int index = Random.Range(0, FirstMove.Count);
             int secondMove = CheckIsEmpty(CheckAdjacent(FirstMove[index]))[Random.Range(0, CheckIsEmpty(CheckAdjacent(FirstMove[index])).Count)];
-            print("Selected Move: " + FirstMove[index] + " - " + secondMove);
+            //print("Selected Move: " + FirstMove[index] + " - " + secondMove);
             Move(FirstMove[index], secondMove);
             oldFirstMove = FirstMove[index];
             oldSecondMove = secondMove;
@@ -764,7 +764,7 @@ public class Bot : MonoBehaviour
         }
         else
         {
-            print("second method");
+            //print("second method");
             MidGameMove_SecondMethod(false, 0, 0);
         }
     } 
@@ -1047,13 +1047,13 @@ public class Bot : MonoBehaviour
                     {
                         message += i + ", ";
                     }
-                    print("First Move: " + message);
+                    //print("First Move: " + message);
                     message = "";
                     foreach (int i in secondMove)
                     {
                         message += i + ", ";
                     }
-                    print("Second Move: " + message);
+                    //print("Second Move: " + message);
                 }
 
                 if (firstMove.Count > 0 && secondMove.Count > 0)
@@ -1071,7 +1071,7 @@ public class Bot : MonoBehaviour
 
                     if (corrected1stMove != -1)
                     {
-                        print("Next Move: " + secondMove[corrected2ndMoveIndex] +  " - " + corrected1stMove);
+                        //print("Next Move: " + secondMove[corrected2ndMoveIndex] +  " - " + corrected1stMove);
                         Move(secondMove[corrected2ndMoveIndex], corrected1stMove);
                         hasFoundAWay = true;
                     }

@@ -79,6 +79,8 @@ public class Slots : MonoBehaviour
         else if (piece == "MillWhite") //Day la slot duoc tao boi 1 mill (3 in a row) - Mau Trang
         {
             //gameObject.GetComponent<SpriteRenderer>().color = Color.white;
+            whitePiece.SetActive(true);
+            blackPiece.SetActive(false);
             state = "MillWhite";
             isMilled = true;
             flare.SetActive(false);
@@ -87,6 +89,8 @@ public class Slots : MonoBehaviour
         else if (piece == "MillBlack") //Day la slot duoc tao boi 1 mill (3 in a row) - Mau Trang
         {
             //gameObject.GetComponent<SpriteRenderer>().color = Color.black;
+            whitePiece.SetActive(false);
+            blackPiece.SetActive(true);
             state = "MillBlack";
             isMilled = true;
             flare.SetActive(false);

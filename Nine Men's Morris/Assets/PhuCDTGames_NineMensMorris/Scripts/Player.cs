@@ -55,4 +55,17 @@ public class Player : MonoBehaviour
             sleepingPiece[i].gameObject.SetActive(true);
         }
     }
+
+    public void SetHowManyPieceIsSleeping(int numberOfSleepingPiece)
+    {
+        currentSleepingIndex = 8;
+        for (int i = 0; i < 9 - numberOfSleepingPiece; i++)
+        {
+            if (currentSleepingIndex >= 0)
+            {
+                sleepingPiece[currentSleepingIndex].gameObject.SetActive(false);
+                currentSleepingIndex--;
+            }
+        }
+    }
 }

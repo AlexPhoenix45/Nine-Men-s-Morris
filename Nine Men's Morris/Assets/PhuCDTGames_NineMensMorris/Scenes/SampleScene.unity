@@ -2964,9 +2964,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1532957329}
+      - m_Target: {fileID: 2101096359}
         m_TargetAssemblyTypeName: BoardState, Assembly-CSharp
-        m_MethodName: LoadBoardState
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5071,10 +5071,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5a23459ff2d1b54fbb304ea960482a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  table: {fileID: 1532957328}
-  whitePlayer: {fileID: 452254589}
-  blackPlayer: {fileID: 892824995}
-  callIndex: 0
+  testIndex: 0
+  whiteMoves: 
 --- !u!1001 &1539480873
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7294,6 +7292,7 @@ MonoBehaviour:
   gamemodePanel: {fileID: 1857183502}
   endgamePanel: {fileID: 406795161}
   endgameText: {fileID: 1928192031}
+  undoButton: {fileID: 1114531182}
 --- !u!1 &2105364615
 GameObject:
   m_ObjectHideFlags: 0
