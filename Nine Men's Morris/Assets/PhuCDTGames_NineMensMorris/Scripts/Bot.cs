@@ -104,7 +104,7 @@ public class Bot : MonoBehaviour
                     {
                         message += i + " ";
                     }
-                    //print(message + ": 2 black pieces, need to place at " + pieceNeedToPlace);
+                    print(message + ": 2 black pieces, need to place at " + pieceNeedToPlace);
                     possibleMoves.Add(pieceNeedToPlace);
                     justCreatedMill = true;
                     isNeedRandomMove = false;
@@ -138,7 +138,7 @@ public class Bot : MonoBehaviour
                     {
                         message += i + " ";
                     }
-                    //print(message + ": 2 white pieces, need to place at " + pieceNeedToPlace);
+                    print(message + ": 2 white pieces, need to place at " + pieceNeedToPlace);
                     possibleMoves.Add(pieceNeedToPlace);
                     isNeedRandomMove = false;
                 }
@@ -594,9 +594,9 @@ public class Bot : MonoBehaviour
         {
             message += move + ", ";
         }
-        //print("All possible moves: " + message);
+        print("All possible moves: " + message);
         int nextMove = possibleMoves[Random.Range(0, possibleMoves.Count)];
-        //print("Bot choose: " + nextMove);
+        print("Bot choose: " + nextMove);
         StartCoroutine(Table.Instance.Evaluate(nextMove));
         possibleMoves.Clear();
     }
@@ -756,7 +756,7 @@ public class Bot : MonoBehaviour
         {
             int index = Random.Range(0, FirstMove.Count);
             int secondMove = CheckIsEmpty(CheckAdjacent(FirstMove[index]))[Random.Range(0, CheckIsEmpty(CheckAdjacent(FirstMove[index])).Count)];
-            //print("Selected Move: " + FirstMove[index] + " - " + secondMove);
+            print("Selected Move: " + FirstMove[index] + " - " + secondMove);
             Move(FirstMove[index], secondMove);
             oldFirstMove = FirstMove[index];
             oldSecondMove = secondMove;
@@ -764,7 +764,7 @@ public class Bot : MonoBehaviour
         }
         else
         {
-            //print("second method");
+            print("second method");
             MidGameMove_SecondMethod(false, 0, 0);
         }
     } 
@@ -1047,13 +1047,13 @@ public class Bot : MonoBehaviour
                     {
                         message += i + ", ";
                     }
-                    //print("First Move: " + message);
+                    print("First Move: " + message);
                     message = "";
                     foreach (int i in secondMove)
                     {
                         message += i + ", ";
                     }
-                    //print("Second Move: " + message);
+                    print("Second Move: " + message);
                 }
 
                 if (firstMove.Count > 0 && secondMove.Count > 0)
@@ -1071,7 +1071,7 @@ public class Bot : MonoBehaviour
 
                     if (corrected1stMove != -1)
                     {
-                        //print("Next Move: " + secondMove[corrected2ndMoveIndex] +  " - " + corrected1stMove);
+                        print("Next Move: " + secondMove[corrected2ndMoveIndex] + " - " + corrected1stMove);
                         Move(secondMove[corrected2ndMoveIndex], corrected1stMove);
                         hasFoundAWay = true;
                     }
@@ -1240,13 +1240,13 @@ public class Bot : MonoBehaviour
                     {
                         message += i + ", ";
                     }
-                    //print("First Move: " + message);
+                    print("First Move: " + message);
                     message = "";
                     foreach (int i in secondMove)
                     {
                         message += i + ", ";
                     }
-                    //print("Second Move: " + message);
+                    print("Second Move: " + message);
                 }
 
                 if (firstMove.Count > 0 && secondMove.Count > 0)
@@ -1264,7 +1264,7 @@ public class Bot : MonoBehaviour
 
                     if (corrected1stMove != -1)
                     {
-                        //print("Next Move: " + secondMove[corrected2ndMoveIndex] + " - " + corrected1stMove);
+                        print("Next Move: " + secondMove[corrected2ndMoveIndex] + " - " + corrected1stMove);
                         Move(secondMove[corrected2ndMoveIndex], corrected1stMove);
                         hasFoundAWay = true;
                     }

@@ -12,6 +12,7 @@ public class Slots : MonoBehaviour
     public int slotValue;
     public bool isMilled;
     public string state;
+    public bool isFlared;
 
     [Header("Chess Piece")]
     public GameObject whitePiece;
@@ -99,10 +100,12 @@ public class Slots : MonoBehaviour
         else if (piece == "AddFlare")
         {
             chesspieceFlare.SetActive(true);
+            isFlared = true;
         }
         else if (piece == "RemoveFlare")
         {
             chesspieceFlare.SetActive(false);
+            isFlared = false;
         }
         else if (piece == "HideUI")
         {

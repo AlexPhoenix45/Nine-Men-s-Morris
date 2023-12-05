@@ -9,11 +9,12 @@ public class BoardState : MonoBehaviour
 {
     public static BoardState Instance;
 
-    List<BoardStateData> boardStateDatas = new List<BoardStateData>();
+    [SerializeField]
+    public List<BoardStateData> boardStateDatas = new List<BoardStateData>();
     public int testIndex;
 
     public List<int> whiteMoves = new List<int>(); //White moves list
-    int currentIndex = 0;
+    public int currentWhiteMoveIndex = 0;
 
     private void Start()
     {
@@ -23,15 +24,16 @@ public class BoardState : MonoBehaviour
         }
     }
 
-    public void SaveBoardData(Slots[] slots, Table.CurrentPlayer currentPlayer, Player whitePlayer, Player blackPlayer)
+    public void SaveBoardData(Slots[] slots, Table.CurrentPlayer currentPlayer, Player whitePlayer, Player blackPlayer, bool removingMove, bool isJumpMove)
     {
+        print("GET DATA!");
         var boardStateData = new BoardStateData();
 
         //Set slot parameters
         //State
         for (int i = 0; i < 24; i++) 
         {
-            boardStateData.SaveSlotParameters(slots[i].state, slots[i].isEmpty, slots[i].isWhite, slots[i].slotValue, slots[i].isMilled, i);
+            boardStateData.SaveSlotParameters(slots[i].state, slots[i].isEmpty, slots[i].isWhite, slots[i].slotValue, slots[i].isMilled, slots[i].isFlared, isJumpMove, removingMove, i);
         }
 
         //Set grids
@@ -44,14 +46,14 @@ public class BoardState : MonoBehaviour
         boardStateData.currentPlayer = currentPlayer; 
         if (currentPlayer == Table.CurrentPlayer.White)
         {
-            whiteMoves.Add(currentIndex);
+            whiteMoves.Add(currentWhiteMoveIndex);
         }
 
         //Set player sleeping pieces
         boardStateData.whiteSleepingPieceLeft = whitePlayer.pieceSleep;
         boardStateData.blackSleepingPieceLeft = blackPlayer.pieceSleep;
 
-        currentIndex++;
+        currentWhiteMoveIndex++;
         boardStateDatas.Add(boardStateData);
     }
 
@@ -63,7 +65,7 @@ public class BoardState : MonoBehaviour
 
     public void LoadBoardData(int index)
     {
-        UIController.Instance.OnClick_Restart();
+        UIController.Instance.EmptySlots();
         for (int i = 0; i < 24; i++)
         {
             //Update slots state
@@ -74,6 +76,15 @@ public class BoardState : MonoBehaviour
             Table.Instance.slots[i].isMilled = boardStateDatas[index].isMilled[i];
             Table.Instance.slots[i].slotValue = boardStateDatas[index].slotValue[i];
             Table.Instance.slots[i].state = boardStateDatas[index].state[i];
+
+            if (boardStateDatas[index].isFlared[i])
+            {
+                Table.Instance.slots[i].setPiece("AddFlare");
+            }
+            else
+            {
+                Table.Instance.slots[i].setPiece("RemoveFlare");
+            }
         }
 
         //Grids
@@ -99,6 +110,10 @@ public class BoardState : MonoBehaviour
             Table.Instance.whitePlayer.MyTurn(false);
             Table.Instance.blackPlayer.MyTurn(true);
         }
+
+        //Update table parameter
+        Table.Instance.removingMove = boardStateDatas[index].removingMove;
+        Table.Instance.isJumpMove = boardStateDatas[index].isJumpMove;
     }
 
     [Button("White Moves List")]
@@ -113,6 +128,7 @@ public class BoardState : MonoBehaviour
     }
 }
 
+[System.Serializable]
 public class BoardStateData
 {
     //Slot paremeters
@@ -121,6 +137,7 @@ public class BoardStateData
     public bool[] isWhite = new bool[24];
     public int[] slotValue = new int[24];
     public bool[] isMilled = new bool[24];
+    public bool[] isFlared = new bool[24];
 
     //Line parameters
     public bool[] gridsValue = new bool[16];
@@ -129,6 +146,10 @@ public class BoardStateData
     public Table.CurrentPlayer currentPlayer;
     public int whiteSleepingPieceLeft;
     public int blackSleepingPieceLeft;
+
+    //Table parameters
+    public bool isJumpMove = false;
+    public bool removingMove = false;
 
     public BoardStateData()
     {
@@ -142,12 +163,15 @@ public class BoardStateData
         }
     }
 
-    public void SaveSlotParameters(string state, bool isEmpty, bool isWhite, int slotValue, bool isMilled, int index)
+    public void SaveSlotParameters(string state, bool isEmpty, bool isWhite, int slotValue, bool isMilled, bool isFlared, bool isJumpMove, bool removingMove, int index)
     {
         this.state[index] = state;
         this.isEmpty[index] = isEmpty;
         this.isWhite[index] = isWhite;
         this.slotValue[index] = slotValue;
         this.isMilled[index] = isMilled;
+        this.isFlared[index] = isFlared;
+        this.isJumpMove = isJumpMove;
+        this.removingMove = removingMove;
     }
 }

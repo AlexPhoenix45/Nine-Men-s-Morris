@@ -70,14 +70,12 @@ public class Table : MonoBehaviour
                 MoveChesspiece(lastestSlot, slotValue, adjacentSlots);
                 adjacentSlots.Clear();
                 selectToMove = false;
-                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
             else
             {
                 MoveChesspiece(lastestSlot, slotValue, emptySlots);
                 emptySlots.Clear();
                 selectToMove = false;
-                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
         }
         else if (removingMove)
@@ -85,12 +83,10 @@ public class Table : MonoBehaviour
             if (currentPlayer == CurrentPlayer.White)
             {
                 RemovingChesspiece(slotValue, true);
-                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
             else
             {
                 RemovingChesspiece(slotValue, false);
-                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
         }
         else
@@ -100,18 +96,15 @@ public class Table : MonoBehaviour
             if (CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep != 0)
             {
                 PlaceChesspiece(slotValue); //Khi player da dat du so chesspiece cua minh thi se khong chay vao day nua
-                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
             else if (!CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep == 0 && ReturnCurrentPlayer(currentPlayer).pieceLive > 3) //Phai dat het 9 chesspiece moi duoc di chuyen nhung chesspiece tren table
             {
                 //Neu slot do khong trong, xem player no an dung vao chesspiece cua minh hay khong, neu an dung thi hien ra nhung nuoc di co the di cua chesspiece do
                 CheckChesspieceAndShowAdjacent(slotValue, false);
-                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
             }
             else if (!CheckIfSlotIsEmpty(slotValue) && ReturnCurrentPlayer(currentPlayer).pieceSleep == 0 && ReturnCurrentPlayer(currentPlayer).pieceLive == 3) //Khi con` lai 3 chesspiece, nguoi choi duoc thuc hien jump move
             {
                 CheckChesspieceAndShowAdjacent(slotValue, true);
-                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer);
                 //Jump Move
             }
         }
@@ -228,10 +221,12 @@ public class Table : MonoBehaviour
                 ShowPossibleRemovingPiece(false);
                 SetMarkerForEmptySlots(false);
                 removingMove = true;
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove);
             }
             else
             {
                 SwitchPlayer(); //Dat chesspiece xong thi doi luot choi
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove);
             }
         }
         else if (currentPlayer == CurrentPlayer.Black) //Neu nhu nguoi choi hien tai la den thi dat chesspiece den vao slot do
@@ -252,10 +247,12 @@ public class Table : MonoBehaviour
                 {
                     CallBotDelay();
                 }
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove);
             }
             else
             {
                 SwitchPlayer(); //Dat chesspiece xong thi doi luot choi
+                boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove);
             }
         }
     } //Dat chesspiece len ban`
@@ -452,10 +449,12 @@ public class Table : MonoBehaviour
                         //print("White can remove a chess piece from Black");
                         ShowPossibleRemovingPiece(false);
                         removingMove = true;
+                        boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove); //This is when finish a move and call Save Board Data
                     }
                     else
                     {
                         SwitchPlayer();
+                        boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove); //This is when finish a move and call Save Board Data
                     }
                 }
                 else if (currentPlayer == CurrentPlayer.Black)
@@ -482,10 +481,12 @@ public class Table : MonoBehaviour
                         {
                             CallBotDelay();
                         }
+                        boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove); //This is when finish a move and call Save Board Data
                     }
                     else
                     {
                         SwitchPlayer();
+                        boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove); //This is when finish a move and call Save Board Data
                     }
                 }
             }
@@ -645,7 +646,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("MillWhite");
                     slots[prev].setPiece("MillWhite");
                     slots[next].setPiece("MillWhite");
-                    SetGrid(true, current, prev, next); //Set grid line for a mill created
+                    SetGrid(true, current, prev, next); //Unset grid line for a mill created
                 }
             }
         }
@@ -658,7 +659,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("MillBlack");
                     slots[prev].setPiece("MillBlack");
                     slots[next].setPiece("MillBlack");
-                    SetGrid(true, current, prev, next); //Set grid line for a mill created
+                    SetGrid(true, current, prev, next); //Unset grid line for a mill created
                 }
             }
         }
@@ -875,6 +876,17 @@ public class Table : MonoBehaviour
 
     private void UnCheckMill(int slotValue, bool isWhite) //Ham nay dung de xoa di nhung mill cu sau khi di chuyen
     {
+        void WaitUntilThatPieceIsArived(int slotValue)
+        {
+            slots[slotValue].setPiece("HideUI");
+            IEnumerator WaitUntilSuccessTraveled()
+            {
+                yield return new WaitForSeconds(.5f);
+                slots[slotValue].setPiece("ShowUI");
+            }
+            StartCoroutine(WaitUntilSuccessTraveled());
+        }
+
         void UnMillWhite(int current, int prev, int next)
         {
             if (slots[prev].isWhite && !slots[prev].isEmpty)
@@ -884,6 +896,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("Empty");
                     slots[prev].setPiece("White");
                     slots[next].setPiece("White");
+                    WaitUntilThatPieceIsArived(current);
                     SetGrid(false, current, prev, next); //Unset grid line for a mill created
                 }
             }
@@ -897,6 +910,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("Empty");
                     slots[prev].setPiece("Black");
                     slots[next].setPiece("Black");
+                    WaitUntilThatPieceIsArived(current);
                     SetGrid(false, current, prev, next); //Unset grid line for a mill created
                 }
             }
@@ -1114,6 +1128,18 @@ public class Table : MonoBehaviour
 
     private string CheckNewMillCreated(int slotValue, bool isWhite) //Tra ve cac slot tao thanh Mill, cho truoc slotValue (tai day se ra` soat' nhung Mill moi duoc tao)
     {
+        void WaitUntilThatPieceIsArived(int current, int prev, int next)
+        {
+            slots[current].setPiece("HideUI");
+            IEnumerator WaitUntilSuccessTraveled()
+            {
+                yield return new WaitForSeconds(.5f);
+                slots[current].setPiece("ShowUI");
+                SetGrid(true, current, prev, next); //Set grid line for a mill created
+            }
+            StartCoroutine(WaitUntilSuccessTraveled());
+        }
+
         string returnMessage = "";
         void SettingMillWhite(int current, int prev, int next)
         {
@@ -1125,7 +1151,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("MillWhite");
                     slots[prev].setPiece("MillWhite");
                     slots[next].setPiece("MillWhite");
-                    SetGrid(true, current, prev, next); //Set grid line for a mill created
+                    WaitUntilThatPieceIsArived(current, prev, next);
                     AudioController.Instance.PlayMillCreated();
                 }
             }
@@ -1140,7 +1166,7 @@ public class Table : MonoBehaviour
                     slots[current].setPiece("MillBlack");
                     slots[prev].setPiece("MillBlack");
                     slots[next].setPiece("MillBlack");
-                    SetGrid(true, current, prev, next); //Set grid line for a mill created
+                    WaitUntilThatPieceIsArived(current, prev, next);
                     AudioController.Instance.PlayMillCreated();
                 }
             }
@@ -1428,6 +1454,7 @@ public class Table : MonoBehaviour
                         SetMarkerForEmptySlots(true);
                     }
                     SwitchPlayer();
+                    boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove);
                 }
             }
             else
@@ -1455,6 +1482,7 @@ public class Table : MonoBehaviour
                         SetMarkerForEmptySlots(true);
                     }
                     SwitchPlayer();
+                    boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove);
                 }
             }
         }
@@ -1485,6 +1513,7 @@ public class Table : MonoBehaviour
                         SetMarkerForEmptySlots(true);
                     }
                     SwitchPlayer();
+                    boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove);
                 }
             }
             else
@@ -1512,6 +1541,7 @@ public class Table : MonoBehaviour
                         SetMarkerForEmptySlots(true);
                     }
                     SwitchPlayer();
+                    boardState.SaveBoardData(slots, currentPlayer, whitePlayer, blackPlayer, removingMove, isJumpMove);
                 }
             }
         }
@@ -1984,22 +2014,5 @@ public class Table : MonoBehaviour
 
         StartCoroutine(DelayCall());
 
-    }
-
-    public void RefreshBoardState(Slots[] saveSlots, bool isWhiteTurn)
-    {
-        for (int i = 0; i < 24; i++)
-        {
-            //slots[i].setPiece(saveSlots[i].state);
-            print(saveSlots[i].state);
-        }
-        if (isWhiteTurn)
-        {
-            currentPlayer = CurrentPlayer.White;
-        }
-        else
-        {
-            currentPlayer = CurrentPlayer.Black;
-        }
     }
 }
