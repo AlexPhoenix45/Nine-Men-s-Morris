@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-public class Table : MonoBehaviour
+
+namespace GameAdd_NineMensMorris
+{
+    public class Table : MonoBehaviour
 {
     public static Table Instance;
     public BoardState boardState;
@@ -61,7 +64,6 @@ public class Table : MonoBehaviour
     
     public IEnumerator Evaluate(int slotValue)
     {
-        UIController.Instance.UpdateUndoButtonTurn(currentPlayer);
         yield return new WaitForSeconds(0.2f);
         if (selectToMove)
         {
@@ -108,6 +110,7 @@ public class Table : MonoBehaviour
                 //Jump Move
             }
         }
+        UIBugsFixer(); //phần này để sửa lỗi các grids không tự tắt khi mill bị remove
     }
     private bool CheckIfSlotIsEmpty(int slotValue)
     {
@@ -523,6 +526,8 @@ public class Table : MonoBehaviour
         {
             SetMarkerForEmptySlots(false);
         }
+
+        UIController.Instance.UpdateUndoButtonTurn(currentPlayer);
     }
 
     private void CheckForWinning(CurrentPlayer current)
@@ -2015,4 +2020,130 @@ public class Table : MonoBehaviour
         StartCoroutine(DelayCall());
 
     }
+
+    private void UIBugsFixer() //This is for grid UI not turned off when a mill has been removed
+    {
+        for (int i = 0; i < 16; i++) //tắt hết các grid cũ 
+        {
+            grids[i].SetActive(false);
+        }
+
+        void CheckForRemainingMill(int a, int b, int c)
+        {
+            if ((!slots[a].isEmpty && slots[a].isWhite) && (!slots[b].isEmpty && slots[b].isWhite) && (!slots[c].isEmpty && slots[c].isWhite)) //xét xem liệu có white mill nào ở trên bàn không
+            {
+                SetGrid(true, a, b, c);
+            }
+            else if ((!slots[a].isEmpty && !slots[a].isWhite) && (!slots[b].isEmpty && !slots[b].isWhite) && (!slots[c].isEmpty && !slots[c].isWhite)) //xét xem liệu có black mill nào ở trên bàn không
+            {
+                SetGrid(true, a, b, c);
+            }
+        }
+
+        for (int i = 0; i < 24; i++)
+        {
+            switch (i)
+            {
+                case 0:
+                    CheckForRemainingMill(0, 1, 2); //Tai day se ta ve mot array neu no tao thanh mot Mill
+                    CheckForRemainingMill(0, 9, 21);
+                    break;
+                case 1:
+                    CheckForRemainingMill(1, 0, 2);
+                    CheckForRemainingMill(1, 4, 7);
+                    break;
+                case 2:
+                    CheckForRemainingMill(2, 0, 1);
+                    CheckForRemainingMill(2, 14, 23);
+                    break;
+                case 3:
+                    CheckForRemainingMill(3, 4, 5);
+                    CheckForRemainingMill(3, 10, 18);
+                    break;
+                case 4:
+                    CheckForRemainingMill(4, 3, 5);
+                    CheckForRemainingMill(4, 1, 7);
+                    break;
+                case 5:
+                    CheckForRemainingMill(5, 4, 3);
+                    CheckForRemainingMill(5, 13, 20);
+                    break;
+                case 6:
+                    CheckForRemainingMill(6, 7, 8);
+                    CheckForRemainingMill(6, 11, 15);
+                    break;
+                case 7:
+                    CheckForRemainingMill(7, 6, 8);
+                    CheckForRemainingMill(7, 4, 1);
+                    break;
+                case 8:
+                    CheckForRemainingMill(8, 7, 6);
+                    CheckForRemainingMill(8, 12, 17);
+                    break;
+                case 9:
+                    CheckForRemainingMill(9, 10, 11);
+                    CheckForRemainingMill(9, 0, 21);
+                    break;
+                case 10:
+                    CheckForRemainingMill(10, 9, 11);
+                    CheckForRemainingMill(10, 3, 18);
+                    break;
+                case 11:
+                    CheckForRemainingMill(11, 10, 9);
+                    CheckForRemainingMill(11, 6, 15);
+                    break;
+                case 12:
+                    CheckForRemainingMill(12, 13, 14);
+                    CheckForRemainingMill(12, 8, 17);
+                    break;
+                case 13:
+                    CheckForRemainingMill(13, 12, 14);
+                    CheckForRemainingMill(13, 5, 20);
+                    break;
+                case 14:
+                    CheckForRemainingMill(14, 13, 12);
+                    CheckForRemainingMill(14, 2, 23);
+                    break;
+                case 15:
+                    CheckForRemainingMill(15, 16, 17);
+                    CheckForRemainingMill(15, 11, 6);
+                    break;
+                case 16:
+                    CheckForRemainingMill(16, 15, 17);
+                    CheckForRemainingMill(16, 19, 22);
+                    break;
+                case 17:
+                    CheckForRemainingMill(17, 16, 15);
+                    CheckForRemainingMill(17, 12, 8);
+                    break;
+                case 18:
+                    CheckForRemainingMill(18, 19, 20);
+                    CheckForRemainingMill(18, 3, 10);
+                    break;
+                case 19:
+                    CheckForRemainingMill(19, 18, 20);
+                    CheckForRemainingMill(19, 16, 22);
+                    break;
+                case 20:
+                    CheckForRemainingMill(20, 19, 18);
+                    CheckForRemainingMill(20, 13, 5);
+                    break;
+                case 21:
+                    CheckForRemainingMill(21, 22, 23);
+                    CheckForRemainingMill(21, 9, 0);
+                    break;
+                case 22:
+                    CheckForRemainingMill(22, 21, 23);
+                    CheckForRemainingMill(22, 19, 16);
+                    break;
+                case 23:
+                    CheckForRemainingMill(23, 22, 21);
+                    CheckForRemainingMill(23, 14, 2);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+}
 }

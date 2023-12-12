@@ -5,7 +5,9 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
 
-public class UIController : MonoBehaviour
+namespace GameAdd_NineMensMorris
+{
+    public class UIController : MonoBehaviour
 {
     public static UIController Instance;
     //Game Move Selection Parameters
@@ -16,7 +18,8 @@ public class UIController : MonoBehaviour
     public TextMeshProUGUI endgameText;
 
     //Undo Parameter
-    public Button undoButton;
+    public Button whiteUndoButton;
+    public Button blackUndoButton;
 
     private void Start()
     {
@@ -32,6 +35,7 @@ public class UIController : MonoBehaviour
         Table.Instance.isBotPlaying = false;
         gamemodePanel.SetActive(false);
     }    
+
     public void OnClick_SelectGameModeBot()
     {
         Table.Instance.isBotPlaying = true;
@@ -64,42 +68,59 @@ public class UIController : MonoBehaviour
         Table.Instance.whitePlayer.MyTurn(true);
         Table.Instance.blackPlayer.MyTurn(false);
 
-        BoardState.Instance.boardStateDatas.Clear();
-        BoardState.Instance.currentWhiteMoveIndex = 0;
-        BoardState.Instance.whiteMoves.Clear();
+        Table.Instance.currentPlayer = Table.CurrentPlayer.White;
 
-        undoButton.interactable = false;
+        BoardState.Instance.boardStateDatas.Clear();
+        BoardState.Instance.currentMoveIndex = 0;
+        BoardState.Instance.whiteMoves.Clear();
+        BoardState.Instance.blackMoves.Clear();
+
+        whiteUndoButton.interactable = false;
     }
 
     public void UpdateUndoButtonTurn(Table.CurrentPlayer currentPlayer)
     {
         if (Table.Instance.isBotPlaying)
         {
-            if (currentPlayer == Table.CurrentPlayer.White)
+            if (currentPlayer == Table.CurrentPlayer.Black)
             {
-                undoButton.interactable = false;
+                whiteUndoButton.interactable = false;
+                StopAllCoroutines();
             }
             else
             {
-                if (BoardState.Instance.currentWhiteMoveIndex > 1)
+                if (BoardState.Instance.currentMoveIndex < 3)
                 {
-                    undoButton.interactable = true;
+                    whiteUndoButton.interactable = false;
+                    blackUndoButton.interactable = false;
                 }
                 else
                 {
-                    undoButton.interactable = false;
+                    FreezeUndoButton(true);
                 }
             }
         }
-        else
+        else if (!Table.Instance.isBotPlaying)
         {
-            if (BoardState.Instance.boardStateDatas.Count > 4)
+            if (BoardState.Instance.currentMoveIndex < 3)
             {
-                undoButton.interactable = true;
+                whiteUndoButton.interactable = false;
+                blackUndoButton.interactable = false;
             }
             else
             {
-                undoButton.interactable = false;
+                if (currentPlayer == Table.CurrentPlayer.White)
+                {
+                    FreezeUndoButton(true);
+                    blackUndoButton.interactable = false;
+                    StopAllCoroutines();
+                }
+                else
+                {
+                    whiteUndoButton.interactable = false;
+                    FreezeUndoButton(false);
+                    StopAllCoroutines();
+                }
             }
         }
     }
@@ -114,21 +135,84 @@ public class UIController : MonoBehaviour
 
     public void OnClick_Undo()
     {
-        int undoMove = BoardState.Instance.whiteMoves[BoardState.Instance.whiteMoves.Count - 2];
-        int currentWhiteMoves = BoardState.Instance.whiteMoves[BoardState.Instance.whiteMoves.Count - 1]; 
-
-        if (Table.Instance.isBotPlaying)
+        if (Table.Instance.currentPlayer == Table.CurrentPlayer.White)
         {
-            print("Last Undo Move: " + undoMove);
-            print("Delete Move Index: " + currentWhiteMoves);
+            int undoMove = BoardState.Instance.whiteMoves[BoardState.Instance.whiteMoves.Count - 2];
+            int currentWhiteMoves = BoardState.Instance.whiteMoves[BoardState.Instance.whiteMoves.Count - 1];
+            if (undoMove <= 0)
+            {
+                OnClick_Restart();
+            }
+            else
+            {
+                print("Last Undo Move: " + undoMove);
+                print("Delete Move Index: " + currentWhiteMoves);
 
-            //Restore previous data
-            BoardState.Instance.LoadBoardData(undoMove);
-            //Delete the current data
-            BoardState.Instance.whiteMoves.RemoveAt(BoardState.Instance.whiteMoves.Count - 1);
-            //Set some involved parameter to the previous one
-            BoardState.Instance.currentWhiteMoveIndex = undoMove;
-            BoardState.Instance.boardStateDatas.RemoveRange(undoMove + 1, (BoardState.Instance.boardStateDatas.Count - undoMove) - 1);
+                //Restore previous data
+                BoardState.Instance.LoadBoardData(undoMove);
+                //Delete the current data
+                BoardState.Instance.whiteMoves.RemoveAt(BoardState.Instance.whiteMoves.Count - 1);
+                //Set some involved parameter to the previous one
+                BoardState.Instance.currentMoveIndex = undoMove + 1;
+                BoardState.Instance.boardStateDatas.RemoveRange(undoMove + 1, (BoardState.Instance.boardStateDatas.Count - undoMove) - 1);
+
+                foreach (int item in BoardState.Instance.blackMoves.ToArray())
+                {
+                    if (item >= undoMove)
+                    {
+                        BoardState.Instance.blackMoves.Remove(item);
+                    }
+                }
+            }
         }
+        else if (Table.Instance.currentPlayer == Table.CurrentPlayer.Black)
+        {
+            int undoMove = BoardState.Instance.blackMoves[BoardState.Instance.blackMoves.Count - 2];
+            int currentBlackMoves = BoardState.Instance.blackMoves[BoardState.Instance.blackMoves.Count - 1];
+            if (undoMove <= 0)
+            {
+                OnClick_Restart();
+            }
+            else
+            {
+                print("Last Undo Move: " + undoMove);
+                print("Delete Move Index: " + currentBlackMoves);
+
+                //Restore previous data
+                BoardState.Instance.LoadBoardData(undoMove);
+                //Delete the current data
+                BoardState.Instance.blackMoves.RemoveAt(BoardState.Instance.blackMoves.Count - 1);
+                //Set some involved parameter to the previous one
+                BoardState.Instance.currentMoveIndex = undoMove + 1;
+                BoardState.Instance.boardStateDatas.RemoveRange(undoMove + 1, (BoardState.Instance.boardStateDatas.Count - undoMove) - 1);
+
+                foreach (int item in BoardState.Instance.whiteMoves.ToArray())
+                {
+                    if (item >= undoMove)
+                    {
+                        BoardState.Instance.whiteMoves.Remove(item);
+                    }
+                }
+            }
+        }
+        UpdateUndoButtonTurn(Table.Instance.currentPlayer);
     }
+    
+    public void FreezeUndoButton(bool isWhite)
+    {
+        IEnumerator Wait()
+        {
+            yield return new WaitForSeconds(.5f);
+            if (isWhite)
+            {
+                whiteUndoButton.interactable = true;
+            }
+            else
+            {
+                blackUndoButton.interactable = true;
+            }
+        }
+        StartCoroutine(Wait());
+    }
+}
 }

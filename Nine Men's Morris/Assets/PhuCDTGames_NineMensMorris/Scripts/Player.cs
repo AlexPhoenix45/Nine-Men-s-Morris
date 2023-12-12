@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+namespace GameAdd_NineMensMorris
+{
+    public class Player : MonoBehaviour
 {
     public int pieceSleep = 9;
     public int pieceLive = 0;
@@ -59,13 +61,15 @@ public class Player : MonoBehaviour
     public void SetHowManyPieceIsSleeping(int numberOfSleepingPiece)
     {
         currentSleepingIndex = 8;
-        for (int i = 0; i < 9 - numberOfSleepingPiece; i++)
+        for (int i = 0; i < 9; i++)
         {
-            if (currentSleepingIndex >= 0)
-            {
-                sleepingPiece[currentSleepingIndex].gameObject.SetActive(false);
-                currentSleepingIndex--;
-            }
+            sleepingPiece[i].gameObject.SetActive(true);
+        }
+
+        for (int i = 0; i < (9 - numberOfSleepingPiece); i++)
+        {
+            PieceAwake();
         }
     }
+}
 }

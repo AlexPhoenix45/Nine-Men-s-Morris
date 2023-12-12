@@ -4,7 +4,9 @@ using System.Reflection;
 using UnityEngine;
 using UnityEditor;
 
-public class Bot : MonoBehaviour
+namespace GameAdd_NineMensMorris
+{
+    public class Bot : MonoBehaviour
 {
     public static Bot Instance;
     private Slots[] slots;
@@ -1797,4 +1799,5 @@ public class Bot : MonoBehaviour
             possibleMoves.Clear();
         }
     }
+}
 }

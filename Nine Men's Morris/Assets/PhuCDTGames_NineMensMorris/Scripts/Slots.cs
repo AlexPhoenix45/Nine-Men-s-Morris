@@ -4,180 +4,183 @@ using System.Reflection;
 using UnityEngine;
 using UnityEditor;
 
-[System.Serializable]
-public class Slots : MonoBehaviour
+namespace GameAdd_NineMensMorris
 {
-    public bool isEmpty = true;
-    public bool isWhite = false;
-    public int slotValue;
-    public bool isMilled;
-    public string state;
-    public bool isFlared;
-
-    [Header("Chess Piece")]
-    public GameObject whitePiece;
-    public GameObject blackPiece;
-    public GameObject flare;
-    public GameObject chesspieceFlare;
-
-    private void Start()
+    [System.Serializable]
+    public class Slots : MonoBehaviour
     {
-        setPiece("Marker");
-    }
+        public bool isEmpty = true;
+        public bool isWhite = false;
+        public int slotValue;
+        public bool isMilled;
+        public string state;
+        public bool isFlared;
 
-    public void setPiece(string piece)
-    {
-        if (piece == "White") //Slot do = chesspiece Trang
-        {
-            isWhite = true;
-            isEmpty = false;
-            state = "White";
-            isMilled = false;
+        [Header("Chess Piece")]
+        public GameObject whitePiece;
+        public GameObject blackPiece;
+        public GameObject flare;
+        public GameObject chesspieceFlare;
 
-            //Setting UI
-            //gameObject.GetComponent<SpriteRenderer>().color = Color.white;
-            whitePiece.SetActive(true);
-            blackPiece.SetActive(false);
-            flare.SetActive(false);
-            chesspieceFlare.SetActive(false);
-        }
-        else if (piece == "Black") //Slot do = chesspiece Den
+        private void Start()
         {
-            isWhite = false;
-            isEmpty = false;
-            state = "Black";
-            isMilled = false;
+            setPiece("Marker");
+        }
 
-            //Setting UI
-            //gameObject.GetComponent<SpriteRenderer>().color = Color.black;
-            blackPiece.SetActive(true);
-            whitePiece.SetActive(false);
-            flare.SetActive(false);
-            chesspieceFlare.SetActive(false);
-        }
-        else if (piece == "Empty") //Day la slot rong~
+        public void setPiece(string piece)
         {
-            isEmpty = true;
-            state = "Empty";
-            isMilled = false;
-
-            //Setting UI
-            //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(1, 0, 0, 0);
-            whitePiece.SetActive(false);
-            blackPiece.SetActive(false);
-            flare.SetActive(false);
-            chesspieceFlare.SetActive(false);
-        }
-        else if (piece == "Marker") //Slot do la nhung duong co the di cua chesspiece duoc chon
-        {
-            //gameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
-            isEmpty = true;
-            state = "Marker";
-            isMilled = false;
-            flare.SetActive(true);
-            chesspieceFlare.SetActive(false);
-        }
-        else if (piece == "MillWhite") //Day la slot duoc tao boi 1 mill (3 in a row) - Mau Trang
-        {
-            //gameObject.GetComponent<SpriteRenderer>().color = Color.white;
-            whitePiece.SetActive(true);
-            blackPiece.SetActive(false);
-            state = "MillWhite";
-            isMilled = true;
-            flare.SetActive(false);
-            chesspieceFlare.SetActive(false);
-        }
-        else if (piece == "MillBlack") //Day la slot duoc tao boi 1 mill (3 in a row) - Mau Trang
-        {
-            //gameObject.GetComponent<SpriteRenderer>().color = Color.black;
-            whitePiece.SetActive(false);
-            blackPiece.SetActive(true);
-            state = "MillBlack";
-            isMilled = true;
-            flare.SetActive(false);
-            chesspieceFlare.SetActive(false);
-        }
-        else if (piece == "AddFlare")
-        {
-            chesspieceFlare.SetActive(true);
-            isFlared = true;
-        }
-        else if (piece == "RemoveFlare")
-        {
-            chesspieceFlare.SetActive(false);
-            isFlared = false;
-        }
-        else if (piece == "HideUI")
-        {
-            whitePiece.SetActive(false);
-            blackPiece.SetActive(false);
-            flare.SetActive(false);
-            chesspieceFlare.SetActive(false);
-        }
-        else if (piece == "ShowUI")
-        {
-            if (state == "White")
+            if (piece == "White") //Slot do = chesspiece Trang
             {
+                isWhite = true;
+                isEmpty = false;
+                state = "White";
+                isMilled = false;
+
+                //Setting UI
+                //gameObject.GetComponent<SpriteRenderer>().color = Color.white;
                 whitePiece.SetActive(true);
                 blackPiece.SetActive(false);
                 flare.SetActive(false);
                 chesspieceFlare.SetActive(false);
             }
-            else if (state == "Black")
+            else if (piece == "Black") //Slot do = chesspiece Den
             {
+                isWhite = false;
+                isEmpty = false;
+                state = "Black";
+                isMilled = false;
+
+                //Setting UI
+                //gameObject.GetComponent<SpriteRenderer>().color = Color.black;
                 blackPiece.SetActive(true);
                 whitePiece.SetActive(false);
                 flare.SetActive(false);
                 chesspieceFlare.SetActive(false);
             }
-            else if (state == "Empty")
+            else if (piece == "Empty") //Day la slot rong~
             {
+                isEmpty = true;
+                state = "Empty";
+                isMilled = false;
+
+                //Setting UI
+                //gameObject.GetComponent<SpriteRenderer>().color = new Vector4(1, 0, 0, 0);
                 whitePiece.SetActive(false);
                 blackPiece.SetActive(false);
                 flare.SetActive(false);
                 chesspieceFlare.SetActive(false);
             }
-            else if (state == "Marker")
+            else if (piece == "Marker") //Slot do la nhung duong co the di cua chesspiece duoc chon
             {
+                //gameObject.GetComponent<SpriteRenderer>().color = Color.yellow;
+                isEmpty = true;
+                state = "Marker";
+                isMilled = false;
                 flare.SetActive(true);
                 chesspieceFlare.SetActive(false);
             }
-            else if (state == "MillWhite")
+            else if (piece == "MillWhite") //Day la slot duoc tao boi 1 mill (3 in a row) - Mau Trang
             {
+                //gameObject.GetComponent<SpriteRenderer>().color = Color.white;
                 whitePiece.SetActive(true);
+                blackPiece.SetActive(false);
+                state = "MillWhite";
+                isMilled = true;
+                flare.SetActive(false);
+                chesspieceFlare.SetActive(false);
+            }
+            else if (piece == "MillBlack") //Day la slot duoc tao boi 1 mill (3 in a row) - Mau Trang
+            {
+                //gameObject.GetComponent<SpriteRenderer>().color = Color.black;
+                whitePiece.SetActive(false);
+                blackPiece.SetActive(true);
+                state = "MillBlack";
+                isMilled = true;
+                flare.SetActive(false);
+                chesspieceFlare.SetActive(false);
+            }
+            else if (piece == "AddFlare")
+            {
+                chesspieceFlare.SetActive(true);
+                isFlared = true;
+            }
+            else if (piece == "RemoveFlare")
+            {
+                chesspieceFlare.SetActive(false);
+                isFlared = false;
+            }
+            else if (piece == "HideUI")
+            {
+                whitePiece.SetActive(false);
                 blackPiece.SetActive(false);
                 flare.SetActive(false);
                 chesspieceFlare.SetActive(false);
             }
-            else if (state == "MillBlack")
+            else if (piece == "ShowUI")
             {
-                blackPiece.SetActive(true);
-                whitePiece.SetActive(false);
-                flare.SetActive(false);
-                chesspieceFlare.SetActive(false);
+                if (state == "White")
+                {
+                    whitePiece.SetActive(true);
+                    blackPiece.SetActive(false);
+                    flare.SetActive(false);
+                    chesspieceFlare.SetActive(false);
+                }
+                else if (state == "Black")
+                {
+                    blackPiece.SetActive(true);
+                    whitePiece.SetActive(false);
+                    flare.SetActive(false);
+                    chesspieceFlare.SetActive(false);
+                }
+                else if (state == "Empty")
+                {
+                    whitePiece.SetActive(false);
+                    blackPiece.SetActive(false);
+                    flare.SetActive(false);
+                    chesspieceFlare.SetActive(false);
+                }
+                else if (state == "Marker")
+                {
+                    flare.SetActive(true);
+                    chesspieceFlare.SetActive(false);
+                }
+                else if (state == "MillWhite")
+                {
+                    whitePiece.SetActive(true);
+                    blackPiece.SetActive(false);
+                    flare.SetActive(false);
+                    chesspieceFlare.SetActive(false);
+                }
+                else if (state == "MillBlack")
+                {
+                    blackPiece.SetActive(true);
+                    whitePiece.SetActive(false);
+                    flare.SetActive(false);
+                    chesspieceFlare.SetActive(false);
+                }
             }
         }
+
+        public void OnMouseDown()
+        {
+            if (Table.Instance.isBotPlaying)
+            {
+                if (!Table.Instance.pending && Table.Instance.currentPlayer == Table.CurrentPlayer.White)
+                {
+                    //print("Player choose: " + slotValue);
+                    StartCoroutine(Table.Instance.Evaluate(slotValue));
+                }
+
+            }
+            else if (!Table.Instance.isBotPlaying)
+            {
+                if (!Table.Instance.pending)
+                {
+                    //print("Player choose: " + slotValue);
+                    StartCoroutine(Table.Instance.Evaluate(slotValue));
+
+                }
+            }
+        } 
     }
-
-    public void OnMouseDown()
-    {
-        if (Table.Instance.isBotPlaying)
-        {
-            if (!Table.Instance.pending && Table.Instance.currentPlayer == Table.CurrentPlayer.White)
-            {
-                //print("Player choose: " + slotValue);
-                StartCoroutine(Table.Instance.Evaluate(slotValue));
-            }
-
-        }
-        else if (!Table.Instance.isBotPlaying)
-        {
-            if (!Table.Instance.pending)
-            {
-                //print("Player choose: " + slotValue);
-                StartCoroutine(Table.Instance.Evaluate(slotValue));
-
-            }
-        }
-    } 
 }

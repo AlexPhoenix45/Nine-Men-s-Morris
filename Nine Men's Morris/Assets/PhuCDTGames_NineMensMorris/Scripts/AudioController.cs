@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioController : MonoBehaviour
+namespace GameAdd_NineMensMorris
+{
+    public class AudioController : MonoBehaviour
 {
     public AudioClip millCreated;
     public AudioClip chessRemoved;
@@ -46,4 +48,5 @@ public class AudioController : MonoBehaviour
     {
         speaker.PlayOneShot(lose);
     }
+}
 }

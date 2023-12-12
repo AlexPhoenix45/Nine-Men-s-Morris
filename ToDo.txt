@@ -39,7 +39,11 @@ copy all parameter from original slot to the others (done)
 
 copy table moves (jump moves, remove moves)
 
-doi het luot moi duoc an undo (2)
-update lai cac piece cua người chơi (undo liên tục sẽ xảy ra hiện tượng trên) (1)
-piecesleep khi đánh ra đã bị tính là mất rồi
-undo nhiều bị loạn, nhảy sang lượt của đen
+PvB done
+doi het luot moi duoc an undo (2) (done)
+update lai cac thuộc tính của piece cua người chơi (undo liên tục sẽ xảy ra hiện tượng trên) (1) (done)
+piecesleep khi đánh ra đã bị tính là mất rồi (done)
+undo nhiều bị loạn, nhảy sang lượt của đen (done)
+
+UI: 
+khi remove piece thì bị dính lại hình ảnh của các grid (done) 
